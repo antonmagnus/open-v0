@@ -12,11 +12,11 @@ export default function Home() {
   return (
     <main className="flex flex-row h-screen w-full bg-gray-200 justify-center">
       {/*  */}
-      <div className="w-1/3 h-full bg-green-200">
+      <div className="w-1/3 h-full bg-slate-800">
         <PromptForm className="h-full" id={id} showPrivate={false} />
       </div>
       <div className="w-2/3 h-full">
-        <PreviewComponent className="h-screen" id={id} defaultCode={`
+        <PreviewComponent className="h-full" id={id} defaultCode={`
       import React, { useState } from 'react';
 
       const App = () => {
