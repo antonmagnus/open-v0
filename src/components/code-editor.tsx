@@ -57,7 +57,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultValue, onChange, classNa
   return (
     <div className={clsx(className, "flex flex-col w-full h-full")}>
       <Editor
-        height="70vh"
+        height="85vh"
         defaultLanguage="javascript"
         defaultValue={defaultValue}
         value={code}

@@ -50,70 +50,74 @@ export function PromptForm({ className, id, showPrivate }: PromptProps) {
   return (
     <>
       <div className={clsx(className, "w-full overflow-y-scroll max-w-2xl")}>
-        <div className="mt-4 p-12">
-          {aiMessages?.map((msg, i) => (
-            <div key={i} className="flex space-4">
-              <div className="flex text-white items-center space-x-4">
-                <p>{msg.role}:</p>
-                <p>{msg.content as string}</p>
+
+        <div className={clsx(className, "w-full overflow-y-scroll max-w-2xl")}>
+          <div className="mt-4 p-12">
+            {aiMessages?.map((msg, i) => (
+              <div key={i} className="flex space-4">
+                <div className="flex text-white items-center space-x-4">
+                  <p>{msg.role}:</p>
+                  <p>{msg.content as string}</p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="sticky p-4 w-full bg-black inset-x-0 bottom-0">
-        <div className="pb-6">
-          <textarea
-            className="w-full min-h-12 px-4 py-2 bg-transparent rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-gray-500 transition-all duration-200 ease-in-out"
-            placeholder="Type here..."
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-          />
-        </div>
-        <div className="flex justify-between items-center">
-          <div className="flex space-x-4">
-            <Button className="text-gray-400" variant="ghost"
-              onClick={selectImage}
-            >
-              <ImageIcon className="h-5 w-5" />
-              <p className="px-2">Image</p>
-            </Button>
-            <Button className="text-gray-400" variant="ghost"
-              onClick={togglePrivate}
-            >
-              {isPrivate ?
-                <LockIcon className="h-5 w-5" />
-                :
-                <UnlockIcon className="h-5 w-5" />
-              }
-              <p className="px-2">
-                {isPrivate ? "Private" : "Public"}
-              </p>
-            </Button>
-          </div>
-          <div className="flex space-x-4" aria-label="Quality or Speed">
-            <div className="flex rounded-md bg-gray-900 border ">
-              <Button className="text-gray-400 bg-gray-800"
-                variant={quality ? "default" : "outline"}
-                onClick={toggleQuality}
-              >
-                Quality
-              </Button>
-              <Button className="text-gray-400"
-                variant={speed ? "default" : "outline"}
-                onClick={toggleSpeed}
-              >
-                Speed
-              </Button>
-            </div>
-            <button className="text-white bg-black"
-              onClick={submitPrompt}
-              disabled={!prompt}>
-              <ArrowUpIcon className="h-6 w-6" />
-            </button>
+            ))}
           </div>
         </div>
+        <div className="sticky p-4 w-full bg-black inset-x-0 bottom-0">
+          <div className="pb-6">
+            <textarea
+              className="w-full min-h-12 px-4 py-2 bg-transparent rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-gray-500 transition-all duration-200 ease-in-out"
+              placeholder="Type here..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+            />
+          </div>
+          <div className="flex justify-between items-center">
+            <div className="flex space-x-4">
+              <Button className="text-gray-400" variant="ghost"
+                onClick={selectImage}
+              >
+                <ImageIcon className="h-5 w-5" />
+                <p className="px-2">Image</p>
+              </Button>
+              <Button className="text-gray-400" variant="ghost"
+                onClick={togglePrivate}
+              >
+                {isPrivate ?
+                  <LockIcon className="h-5 w-5" />
+                  :
+                  <UnlockIcon className="h-5 w-5" />
+                }
+                <p className="px-2">
+                  {isPrivate ? "Private" : "Public"}
+                </p>
+              </Button>
+            </div>
+            <div className="flex space-x-4" aria-label="Quality or Speed">
+              <div className="flex rounded-md bg-gray-900 border ">
+                <Button className="text-gray-400 bg-gray-800"
+                  variant={quality ? "default" : "outline"}
+                  onClick={toggleQuality}
+                >
+                  Quality
+                </Button>
+                <Button className="text-gray-400"
+                  variant={speed ? "default" : "outline"}
+                  onClick={toggleSpeed}
+                >
+                  Speed
+                </Button>
+              </div>
+              <button className="text-white bg-black"
+                onClick={submitPrompt}
+                disabled={!prompt}>
+                <ArrowUpIcon className="h-6 w-6" />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
+
     </>
 
   )
