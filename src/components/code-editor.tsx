@@ -23,6 +23,8 @@ function formatJSXCode(code: string) {
   // Replace escaped double quotes
   code = code.replace(/\\"/g, '"');
 
+  // Replace escaped backslashes
+  code = code.replace(/\\$/gm, '');
   return code;
 }
 const CodeEditor: React.FC<CodeEditorProps> = ({ defaultValue, onChange, className }) => {
