@@ -1,24 +1,22 @@
-import Chat from "@/components/chat";
 import PreviewComponent from "@/components/preview-component";
-import { PromptForm } from "@/components/prompt-form";
-import { nanoid } from "ai";
-import Split from 'react-split';
+import { useRouter } from "next/navigation";
+interface RenderParams {
+  params: {
+    id: string
+  }
+}
 
+export default function Render({ params }: RenderParams) {
+  const { id } = params
+  const router = useRouter()
 
-
-export default function Home() {
-  const id = nanoid();
-
+  if (!id) router.push("/")
+  // use id to kv, should be authenticated
   return (
-    <main className="flex flex-row h-screen w-full bg-gray-200 justify-center">
-      {/*  */}
-      <div className="w-1/3 h-full bg-green-200">
-        <PromptForm className="h-full" id={id} showPrivate={false} />
-      </div>
-      <div className="w-2/3 h-full">
-        <PreviewComponent className="h-screen" id={id} defaultCode={`
+    <main className="w-full h-screen flex flex-col items-center bg-gray-200 justify-center">
+      <PreviewComponent id={id} defaultCode={`
       import React, { useState } from 'react';
-
+      
       const App = () => {
       const [loading, setLoading] = useState(false);
       const [text, setText] = useState('Click me!');
@@ -49,11 +47,10 @@ export default function Home() {
         </div>
         
       );
-      };
-      export default App;
-
-      `} />
-      </div>
+    };
+    export default App;
+    
+    `} />
     </main>
   );
 }
