@@ -11,6 +11,7 @@ interface CodeEditorProps extends HTMLAttributes<HTMLDivElement> {
   onChange: (value: any) => void;
 }
 function formatJSXCode(code: string) {
+  if (!code) return code;
   // Replace escaped newlines within strings
   code = code.replace(/\\n/g, '\n');
 
@@ -33,7 +34,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultValue, onChange, classNa
     // Handle the editor's mount event if needed
   };
   const [code, setCode] = useState(defaultValue);
-  const { aiMessages, updateLastMessage } = useAI()
+  const { aiResponses, updateLastResponse } = useAI()
 
   const handleEditorChange = (value: any) => {
     setCode(value || '');
@@ -41,22 +42,17 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultValue, onChange, classNa
   }
   const saveCode = () => {
     // Save the code to the database
-    updateLastMessage(code)
+    updateLastResponse(code)
   }
 
   useEffect(() => {
-    console.log('code triggered')
-    if (aiMessages && aiMessages.length > 0) {
-      console.log('message exist and is longer than 0')
-      const lastMessage = aiMessages[aiMessages.length - 1]
-      if (lastMessage.role === 'assistant' && lastMessage.content) {
-        console.log('updating code', lastMessage)
-        const formattedCode = formatJSXCode(lastMessage.content);
-        setCode(formattedCode)
-        handleEditorChange(formattedCode)
-      }
+    if (aiResponses && aiResponses.length > 0) {
+      const lastMessage = aiResponses[aiResponses.length - 1]
+      const formattedCode = formatJSXCode(lastMessage.code);
+      setCode(formattedCode)
+      handleEditorChange(formattedCode)
     }
-  }, [aiMessages])
+  }, [aiResponses])
 
   return (
     <div className={clsx(className, "flex flex-col w-full h-full")}>

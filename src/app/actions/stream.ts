@@ -63,7 +63,6 @@ export default App;
 export async function generate(input: PostMessages) {
   'use server'
   const messages = input.messages
-  console.log(messages)
   let systemPromptMessage: string
   try {
     systemPromptMessage = await getSystemPrompt({
@@ -91,7 +90,8 @@ export async function generate(input: PostMessages) {
           maxTokens: 2000,
           system: systemPromptMessage,
           schema: z.object({
-            description: z.string(),
+            description: z.string()
+              .describe('A short description of the code to be executed and changes made'),
             code: z
               .string()
               .describe('The full code to be executed.'),

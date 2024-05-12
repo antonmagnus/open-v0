@@ -43,14 +43,17 @@ function useAI() {
   //   setAIOptions(initOptions);
   // }, [initOptions, setAIOptions]);
 
-  const [aiMessages, aiOptions, setAIOptions, appendAIMessage, appendChunkToLastAIMessage, updateLastAIMessage] = useAIStore(
+  const [aiMessages, aiResponses, aiOptions, setAIOptions, appendAIMessage, appendChunkToLastAIMessage, updateLastAIMessage, appendLastAIResponse, updateLastAIResponse] = useAIStore(
     useShallow((state: AIStore) => [
       state.aiMessages,
+      state.aiResponses,
       state.aiOptions,
       state.setAIOptions,
       state.appendAIMessage,
       state.appendChunkToLastAIMessage,
       state.updateLastAIMessage,
+      state.appendAIResponse,
+      state.updateLastAIResponse,
     ]),
   )
 
@@ -69,6 +72,7 @@ function useAI() {
       return;
     }
     appendAIMessage(message);
+
     const sendMessage: PostMessages = {
       messages: useAIStore.getState().aiMessages || [],
       mode: aiOptions.mode,
@@ -83,10 +87,12 @@ function useAI() {
           role: "assistant",
         };
         appendAIMessage(message);
+        appendLastAIResponse({ code: "", description: "" });
 
         for await (const partialObject of readStreamableValue(object)) {
           if (partialObject) {
-            updateLastAIMessage(partialObject.code)
+            updateLastAIResponse(partialObject)
+            updateLastAIMessage(JSON.stringify(partialObject))
           }
         }
       }
@@ -101,10 +107,16 @@ function useAI() {
     setAIOptions({ ...aiOptions, isPrivate });
   }
 
-  const updateLastMessage = (content: string) => {
-    updateLastAIMessage(content);
+  const updateLastResponse = (content: string) => {
+    if (!aiResponses || aiResponses.length === 0) {
+      return;
+    }
+    const desc = aiResponses[aiResponses.length - 1].description;
+    const newResponse = { code: content, description: desc };
+    updateLastAIMessage(JSON.stringify(newResponse));
+    updateLastAIResponse({ code: content, description: desc });
   }
 
-  return { setAIOptions, setMode, setPrivate, sendMessage, aiMessages, updateLastMessage };
+  return { setAIOptions, setMode, setPrivate, sendMessage, aiMessages, aiResponses, updateLastResponse };
 }
 export default useAI;

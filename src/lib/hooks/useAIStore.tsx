@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { AIOptions, SnackbarOptions } from '../model';
+import { AIOptions, CodeMessageResponse, SnackbarOptions } from '../model';
 import { MessageParam } from './use-ai';
 import { nanoid } from 'ai';
 
@@ -7,10 +7,13 @@ export interface AIStore {
   aiOptions: AIOptions
   setAIOptions: (options: AIOptions) => void
   aiMessages?: MessageParam[] | []
+  aiResponses?: CodeMessageResponse[]
   setAIMessages: (messages: MessageParam[]) => void
   appendAIMessage: (message: MessageParam) => void
   updateLastAIMessage: (content: string) => void
   appendChunkToLastAIMessage: (chunk: string) => void
+  appendAIResponse: (response: CodeMessageResponse) => void
+  updateLastAIResponse: (response: CodeMessageResponse) => void
 }
 
 /**
@@ -19,6 +22,7 @@ export interface AIStore {
  */
 const useAIStore = create<AIStore>((set) => ({
   aiMessages: [],
+  aiResponses: [],
   aiOptions: {
     id: nanoid(),
     mode: 'speed',
@@ -43,7 +47,24 @@ const useAIStore = create<AIStore>((set) => ({
       };
     });
   },
-
+  appendAIResponse: (response: CodeMessageResponse) => {
+    set((state: AIStore) => {
+      return {
+        aiResponses: [...state.aiResponses || [], response],
+      };
+    });
+  },
+  updateLastAIResponse: (response: CodeMessageResponse) => {
+    set((state: AIStore) => {
+      const responses = [...state.aiResponses || []]; // Create a new array to ensure immutability
+      if (responses.length > 0) {
+        responses[responses.length - 1] = response; // Replace the last message with the updated one
+      }
+      return {
+        aiResponses: responses,
+      };
+    });
+  },
   updateLastAIMessage: (content: string) => {
     set((state: AIStore) => {
       const messages = [...state.aiMessages || []]; // Create a new array to ensure immutability

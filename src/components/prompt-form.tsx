@@ -1,8 +1,10 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import useAI from "@/lib/hooks/use-ai"
+import { CodeMessageResponse } from "@/lib/model"
 import clsx from "clsx"
 import { HTMLAttributes, JSX, SVGProps, useState } from "react"
+import { json } from "stream/consumers"
 
 
 interface PromptProps extends HTMLAttributes<HTMLDivElement> {
@@ -10,7 +12,17 @@ interface PromptProps extends HTMLAttributes<HTMLDivElement> {
   showPrivate: boolean
 }
 
-
+const tryGetDescription = (jsonString: string): string => {
+  if (!jsonString || jsonString === "") {
+    return ""
+  }
+  try {
+    const message = JSON.parse(jsonString) as CodeMessageResponse
+    return message.description
+  } catch (e) {
+    return ""
+  }
+}
 export function PromptForm({ className, id, showPrivate }: PromptProps) {
   const [prompt, setPrompt] = useState<string>("")
   const [isPrivate, setIsPrivate] = useState<boolean>(false)
@@ -44,7 +56,6 @@ export function PromptForm({ className, id, showPrivate }: PromptProps) {
   }
   const selectImage = () => {
     console.log("Image uploaded")
-    console.log("messages: ", aiMessages)
   }
 
   return (
@@ -55,10 +66,17 @@ export function PromptForm({ className, id, showPrivate }: PromptProps) {
           <div className="mt-4 p-12">
             {aiMessages?.map((msg, i) => (
               <div key={i} className="flex space-4">
-                <div className="flex text-white items-center space-x-4">
-                  <p>{msg.role}:</p>
-                  <p>{msg.content as string}</p>
-                </div>
+                {msg.role === "user" ?
+                  <div className="flex text-white items-center space-x-4">
+                    <p>{msg.role}:</p>
+                    <p>{msg.content as string}</p>
+                  </div>
+                  :
+                  <div className="flex text-white items-center space-x-4">
+                    <p>{msg.role}:</p>
+                    <p>{tryGetDescription(msg.content || '')}</p>
+                  </div>
+                }
               </div>
             ))}
           </div>
