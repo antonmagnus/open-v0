@@ -1,20 +1,12 @@
-import { OpenAI } from "openai";
-import {
-  OpenAIStream,
-  StreamingTextResponse,
-} from "ai";
-import { z } from 'zod'
-import { nanoid } from 'nanoid'
-import { functions, runFunction } from './functions'
+
+'use server'
+import { streamObject, CoreMessage, CoreSystemMessage, OpenAIStream } from 'ai';
+import { openai } from '@ai-sdk/openai';
+import { z } from 'zod';
+import { createStreamableValue } from 'ai/rsc';
+
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions.mjs";
 import { PostMessages } from "@/lib/model";
-
-
-export const runtime = 'edge'
-
-const openai: OpenAI = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
 
 type systemPromptReq = {
   messages: ChatCompletionMessageParam[]
@@ -68,21 +60,15 @@ export default App;
 }
 
 
-export async function POST(req: any) {
-  const json = await req.json()
-  let { id, messages } = json as PostMessages
-  if (!id) {
-    id = nanoid()
-  }
-  let systemPromptMessage: ChatCompletionMessageParam
+export async function generate(input: PostMessages) {
+  'use server'
+  const messages = input.messages
+  console.log(messages)
+  let systemPromptMessage: string
   try {
-    const systemPrompt = await getSystemPrompt({
+    systemPromptMessage = await getSystemPrompt({
       messages
     })
-    systemPromptMessage = {
-      content: systemPrompt,
-      role: 'system'
-    }
   }
   catch (error: any) {
     console.error(error)
@@ -97,40 +83,31 @@ export async function POST(req: any) {
   // now the storage can happen twice but im tiered and i dont want to think about it
   while (retry) {
     try {
-      const messagesWithSystemPrompt: any[] = [systemPromptMessage, ...messages]
+      const stream = createStreamableValue();
+      (async () => {
 
-      const res = await openai.chat.completions.create({
-        model,
-        messages: messagesWithSystemPrompt,
-        temperature: 0,
-        stream: true,
-        functions,
-        function_call: "none"
-      })
+        const { partialObjectStream } = await streamObject({
+          model: openai(model),
+          maxTokens: 2000,
+          system: systemPromptMessage,
+          schema: z.object({
+            description: z.string(),
+            code: z
+              .string()
+              .describe('The full code to be executed.'),
+          }),
+          messages: messages as CoreMessage[],
+          temperature: 0,
+        });
 
+        for await (const partialObject of partialObjectStream) {
+          stream.update(partialObject);
+        }
+        stream.done();
+      })();
 
-      /*
-      Type '({ name, arguments: args }: FunctionCallPayload, createFunctionCallMessages: (functionCallResult: JSONValue) => CreateMessage[]) => Promise<Stream<OpenAi.Chat.Completions.ChatCompletionChunk>>' is not assignable to type '(functionCallPayload: FunctionCallPayload, createFunctionCallMessages: (functionCallResult: JSONValue) => CreateMessage[]) => Promise<...>'.
-      */
-      const oai = OpenAIStream(res, {
-        experimental_onFunctionCall: async (
-          { name, arguments: args },
-          createFunctionCallMessages,
-        ) => {
-          const result = await runFunction(name, args)
-          const newMessages = createFunctionCallMessages(result)
-          return openai.chat.completions.create({
-            model,
-            messages: [...messagesWithSystemPrompt, ...newMessages],
-            temperature: 0,
-            stream: true,
-          })
-        },
-        async onCompletion(completion: any) {
-        },
+      return { object: stream.value };
 
-      })
-      return new StreamingTextResponse(oai)
     } catch (error: any) {
       console.error(error)
       if (model === 'gpt-3.5-turbo-16k') {

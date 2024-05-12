@@ -4,6 +4,7 @@ import Editor, { OnMount } from '@monaco-editor/react';
 import useAI from '@/lib/hooks/use-ai';
 import { PreviewToolbar } from './preview-toolbar';
 import clsx from 'clsx';
+import { CodeMessageResponse } from '@/lib/model';
 
 interface CodeEditorProps extends HTMLAttributes<HTMLDivElement> {
   defaultValue: string;
@@ -44,9 +45,12 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultValue, onChange, classNa
   }
 
   useEffect(() => {
+    console.log('code triggered')
     if (aiMessages && aiMessages.length > 0) {
+      console.log('message exist and is longer than 0')
       const lastMessage = aiMessages[aiMessages.length - 1]
       if (lastMessage.role === 'assistant' && lastMessage.content) {
+        console.log('updating code', lastMessage)
         const formattedCode = formatJSXCode(lastMessage.content);
         setCode(formattedCode)
         handleEditorChange(formattedCode)

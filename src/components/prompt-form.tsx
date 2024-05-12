@@ -17,7 +17,7 @@ export function PromptForm({ className, id, showPrivate }: PromptProps) {
   const [quality, setQuality] = useState<boolean>(false)
   const [speed, setSpeed] = useState<boolean>(true)
 
-  const { sendMessage, sendTestMessage, setMode, setPrivate, aiMessages } = useAI()
+  const { sendMessage, setMode, setPrivate, aiMessages } = useAI()
 
   const toggleQuality = () => {
     setQuality(true)

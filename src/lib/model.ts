@@ -8,6 +8,10 @@ export type PostMessages = {
   isPrivate: boolean,
 }
 
+export type CodeMessageResponse = {
+  code: string,
+  description: string,
+}
 
 export interface SnackbarOptions {
   title: string,
