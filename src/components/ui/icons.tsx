@@ -88,6 +88,18 @@ function IconNextChat({
   )
 }
 
+const IconMagnolia = ({ inverted, className, ...props }: React.ComponentProps<'img'> & { inverted?: boolean }) => {
+
+  return (
+    <img
+      src="/magnolia.png"
+      alt="Magnolia logo"
+      className={cn(className, "h-12 w-12", inverted && "filter invert")}
+    />
+  )
+
+}
+
 function IconOpenAI({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
     <svg
@@ -477,6 +489,7 @@ function IconChevronUpDown({
 }
 
 export {
+  IconMagnolia,
   IconEdit,
   IconNextChat,
   IconOpenAI,

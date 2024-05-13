@@ -5,28 +5,19 @@ import { Button } from '@/components/ui/button'
 import { Sidebar } from '@/components/sidebar'
 import { SidebarList } from '@/components/sidebar-list'
 import {
-  IconGitHub,
-  IconNextChat,
+  IconMagnolia,
   IconSeparator,
-  IconVercel
 } from '@/components/ui/icons'
 import { SidebarFooter } from '@/components/sidebar-footer'
 import { ThemeToggle } from '@/components/theme-toggle'
-import { ClearHistory } from '@/components/clear-history'
 import { UserMenu } from '@/components/user-menu'
-import { LoginButton } from '@/components/login-button'
-import { ServerActionResult } from '@/lib/types'
-import useAI from '@/lib/hooks/use-ai'
+
 import ShowCoversationButton from './conversation-button'
+import { auth } from '@/auth'
 
 export async function Header() {
-  const session = {
-    user: {
-      id: 1,
-      name: 'John Doe',
-      email: 'test'
-    }
-  }
+
+  const session = await auth()
 
   return (
     <header className="top-0 z-50 flex h-16 w-full shrink-0 items-center justify-between border-b px-4">
@@ -51,8 +42,8 @@ export async function Header() {
           </Sidebar>
         ) : (
           <Link href="/" target="_blank" rel="nofollow">
-            <IconNextChat className="mr-2 h-6 w-6 dark:hidden" inverted />
-            <IconNextChat className="mr-2 hidden h-6 w-6 dark:block" />
+            <IconMagnolia className="mr-2 h-6 w-6 dark:hidden" inverted />
+            <IconMagnolia className="mr-2 hidden h-6 w-6 dark:block" />
           </Link>
         )}
         <div className="flex items-center">
