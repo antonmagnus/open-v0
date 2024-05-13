@@ -1,6 +1,7 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import useAI from "@/lib/hooks/use-ai"
+import { useEnterSubmit } from "@/lib/hooks/use-enter-submit"
 import { CodeMessageResponse } from "@/lib/model"
 import clsx from "clsx"
 import { HTMLAttributes, JSX, SVGProps, useState } from "react"
@@ -24,6 +25,7 @@ const tryGetDescription = (jsonString: string): string => {
   }
 }
 export function PromptForm({ className, id, showPrivate }: PromptProps) {
+  const { formRef, onKeyDown } = useEnterSubmit()
   const [prompt, setPrompt] = useState<string>("")
   const [isPrivate, setIsPrivate] = useState<boolean>(false)
   const [quality, setQuality] = useState<boolean>(false)
@@ -46,14 +48,16 @@ export function PromptForm({ className, id, showPrivate }: PromptProps) {
     setIsPrivate(!isPrivate)
     setPrivate(!isPrivate)
   }
-  const submitPrompt = () => {
+  const submitPrompt = (event) => {
+    event.preventDefault();  // Prevent default form submit behavior
     if (!prompt) {
-      return
+      // Optionally, add feedback here
+      return;
     }
-    sendMessage({ role: "user", content: prompt })
-    //sendTestMessage()
-    setPrompt("")
+    sendMessage({ role: "user", content: prompt });
+    setPrompt("");  // Reset prompt after sending
   }
+
   const selectImage = () => {
     console.log("Image uploaded")
   }
@@ -81,12 +85,13 @@ export function PromptForm({ className, id, showPrivate }: PromptProps) {
             ))}
           </div>
         </div>
-        <div className="sticky p-4 w-full bg-black inset-x-0 bottom-0">
+        <form ref={formRef} onSubmit={(e) => submitPrompt(e)} className="sticky p-4 w-full bg-black inset-x-0 bottom-0">
           <div className="pb-6">
             <textarea
               className="w-full min-h-12 px-4 py-2 bg-transparent rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-gray-500 transition-all duration-200 ease-in-out"
               placeholder="Type here..."
               value={prompt}
+              onKeyDown={onKeyDown}
               onChange={(e) => setPrompt(e.target.value)}
             />
           </div>
@@ -126,14 +131,13 @@ export function PromptForm({ className, id, showPrivate }: PromptProps) {
                   Speed
                 </Button>
               </div>
-              <button className="text-white bg-black"
-                onClick={submitPrompt}
+              <button type="submit" className="text-white bg-black"
                 disabled={!prompt}>
                 <ArrowUpIcon className="h-6 w-6" />
               </button>
             </div>
           </div>
-        </div>
+        </form>
       </div>
 
     </>
