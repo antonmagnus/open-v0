@@ -5,32 +5,20 @@ import { useEnterSubmit } from "@/lib/hooks/use-enter-submit"
 import { CodeMessageResponse } from "@/lib/model"
 import clsx from "clsx"
 import { HTMLAttributes, JSX, SVGProps, useState } from "react"
-import { json } from "stream/consumers"
-
+import { IconOpenAI, IconUser } from '@/components/ui/icons'
 
 interface PromptProps extends HTMLAttributes<HTMLDivElement> {
   id: string
   showPrivate: boolean
 }
 
-const tryGetDescription = (jsonString: string): string => {
-  if (!jsonString || jsonString === "") {
-    return ""
-  }
-  try {
-    const message = JSON.parse(jsonString) as CodeMessageResponse
-    return message.description
-  } catch (e) {
-    return ""
-  }
-}
+
 export function PromptForm({ className, id, showPrivate }: PromptProps) {
   const { formRef, onKeyDown } = useEnterSubmit()
   const [prompt, setPrompt] = useState<string>("")
   const [isPrivate, setIsPrivate] = useState<boolean>(false)
   const [quality, setQuality] = useState<boolean>(false)
   const [speed, setSpeed] = useState<boolean>(true)
-
   const { sendMessage, setMode, setPrivate, aiMessages } = useAI()
 
   const toggleQuality = () => {
@@ -48,7 +36,7 @@ export function PromptForm({ className, id, showPrivate }: PromptProps) {
     setIsPrivate(!isPrivate)
     setPrivate(!isPrivate)
   }
-  const submitPrompt = (event) => {
+  const submitPrompt = (event: React.FormEvent) => {
     event.preventDefault();  // Prevent default form submit behavior
     if (!prompt) {
       // Optionally, add feedback here
@@ -64,81 +52,60 @@ export function PromptForm({ className, id, showPrivate }: PromptProps) {
 
   return (
     <>
-      <div className={clsx(className, "w-full overflow-y-scroll max-w-2xl")}>
 
-        <div className={clsx(className, "w-full overflow-y-scroll max-w-2xl")}>
-          <div className="mt-4 p-12">
-            {aiMessages?.map((msg, i) => (
-              <div key={i} className="flex space-4">
-                {msg.role === "user" ?
-                  <div className="flex text-white items-center space-x-4">
-                    <p>{msg.role}:</p>
-                    <p>{msg.content as string}</p>
-                  </div>
-                  :
-                  <div className="flex text-white items-center space-x-4">
-                    <p>{msg.role}:</p>
-                    <p>{tryGetDescription(msg.content || '')}</p>
-                  </div>
-                }
-              </div>
-            ))}
+      <form ref={formRef} onSubmit={(e) => submitPrompt(e)} className={clsx(className)}>
+        <div className="pb-6">
+          <textarea
+            className="w-full min-h-12 px-4 py-2 rounded-md text-white placeholder-gray-400 border-gray-200 border focus:outline-none focus:border-gray-500 transition-all duration-200 ease-in-out"
+            placeholder="Type here..."
+            value={prompt}
+            onKeyDown={onKeyDown}
+            onChange={(e) => setPrompt(e.target.value)}
+          />
+        </div>
+        <div className="flex justify-between items-center">
+          <div className="flex space-x-4">
+            <Button className="text-gray-400" variant="ghost"
+              onClick={selectImage}
+            >
+              <ImageIcon className="h-5 w-5" />
+              <p className="px-2">Image</p>
+            </Button>
+            <Button className={clsx(!showPrivate && "hidden", "text-gray-400")} variant="ghost"
+              onClick={togglePrivate}
+            >
+              {isPrivate ?
+                <LockIcon className="h-5 w-5" />
+                :
+                <UnlockIcon className="h-5 w-5" />
+              }
+              <p className="px-2">
+                {isPrivate ? "Private" : "Public"}
+              </p>
+            </Button>
+          </div>
+          <div className="flex space-x-4" aria-label="Quality or Speed">
+            <div className="flex rounded-md border ">
+              <Button className="text-gray-400"
+                variant={quality ? "default" : "outline"}
+                onClick={toggleQuality}
+              >
+                Quality
+              </Button>
+              <Button className="text-gray-400"
+                variant={speed ? "default" : "outline"}
+                onClick={toggleSpeed}
+              >
+                Speed
+              </Button>
+            </div>
+            <button type="submit" className="text-white"
+              disabled={!prompt}>
+              <ArrowUpIcon className="h-6 w-6" />
+            </button>
           </div>
         </div>
-        <form ref={formRef} onSubmit={(e) => submitPrompt(e)} className="sticky p-4 w-full bg-black inset-x-0 bottom-0">
-          <div className="pb-6">
-            <textarea
-              className="w-full min-h-12 px-4 py-2 bg-transparent rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-gray-500 transition-all duration-200 ease-in-out"
-              placeholder="Type here..."
-              value={prompt}
-              onKeyDown={onKeyDown}
-              onChange={(e) => setPrompt(e.target.value)}
-            />
-          </div>
-          <div className="flex justify-between items-center">
-            <div className="flex space-x-4">
-              <Button className="text-gray-400" variant="ghost"
-                onClick={selectImage}
-              >
-                <ImageIcon className="h-5 w-5" />
-                <p className="px-2">Image</p>
-              </Button>
-              <Button className="text-gray-400" variant="ghost"
-                onClick={togglePrivate}
-              >
-                {isPrivate ?
-                  <LockIcon className="h-5 w-5" />
-                  :
-                  <UnlockIcon className="h-5 w-5" />
-                }
-                <p className="px-2">
-                  {isPrivate ? "Private" : "Public"}
-                </p>
-              </Button>
-            </div>
-            <div className="flex space-x-4" aria-label="Quality or Speed">
-              <div className="flex rounded-md bg-gray-900 border ">
-                <Button className="text-gray-400 bg-gray-800"
-                  variant={quality ? "default" : "outline"}
-                  onClick={toggleQuality}
-                >
-                  Quality
-                </Button>
-                <Button className="text-gray-400"
-                  variant={speed ? "default" : "outline"}
-                  onClick={toggleSpeed}
-                >
-                  Speed
-                </Button>
-              </div>
-              <button type="submit" className="text-white bg-black"
-                disabled={!prompt}>
-                <ArrowUpIcon className="h-6 w-6" />
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
+      </form>
 
     </>
 

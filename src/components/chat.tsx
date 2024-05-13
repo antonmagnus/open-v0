@@ -1,49 +1,50 @@
 'use client'
 
-import React from 'react';
-interface ChatProps {
-  // Define your component props here
+import React, { HTMLAttributes } from 'react';
+import { IconOpenAI, IconUser } from './ui/icons';
+import clsx from 'clsx';
+import useAI from '@/lib/hooks/use-ai';
+import { CodeMessageResponse } from '@/lib/model';
+import { PromptForm } from './prompt-form';
+interface ChatProps extends HTMLAttributes<HTMLDivElement> {
+  id: string;
+}
+const tryGetDescription = (jsonString: string): string => {
+  if (!jsonString || jsonString === "") {
+    return ""
+  }
+  try {
+    const message = JSON.parse(jsonString) as CodeMessageResponse
+    return message.description
+  } catch (e) {
+    return ""
+  }
 }
 
-const messages = [
-  {
-    id: 1,
-    content: 'Hello',
-    role: 'user',
-  },
-  {
-    id: 2,
-    content: 'Hi',
-    role: 'assistant',
-  },
-  {
-    id: 3,
-    content: 'How are you',
-    role: 'user',
-  },
-]
-const Chat: React.FC<ChatProps> = () => {
+export function Chat({ className, id }: ChatProps) {
+  const { aiMessages } = useAI()
   return (
-    <div className="bg-black p-4">
-      {/* messages */}
-      <div className="mb-4">
-        {messages.map((message) => (
-          <div key={message.id} className="mb-2">
-            <p className={`text-${message.role === 'user' ? 'blue' : 'green'}-500`}>
-              {message.role}: {message.content}
-            </p>
-          </div>
-        ))}
+    <div className={clsx(className, "h-full overflow-y-scroll max-w-2xl")}>
+      <div className={clsx("w-full h-full overflow-y-scroll max-w-2xl")}>
+        <div className="mt-4 h-full p-6 space-y-4">
+          {aiMessages?.map((msg, i) => (
+            <div key={i} className="flex space-4">
+              {msg.role === "user" ?
+                <div className="flex text-white items-center space-x-4">
+                  <IconUser />
+                  <p>{msg.content as string}</p>
+                </div>
+                :
+                <div className="flex text-white items-center space-x-4">
+                  <IconOpenAI />
+                  <p>{tryGetDescription(msg.content || '')}</p>
+                </div>
+              }
+            </div>
+          ))}
+        </div>
       </div>
-      {/* input */}
-      <div className="flex">
-        <input
-          type="text"
-          placeholder="Type a message"
-          className="flex-grow border border-gray-300 rounded-l p-2"
-        />
-        <button className="bg-blue-500 text-white px-4 py-2 rounded-r">Send</button>
-      </div>
+      <PromptForm className='sticky p-4 bg-black inset-x-0 bottom-0' id={id} showPrivate={false} />
     </div>
   );
 };

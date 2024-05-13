@@ -62,11 +62,11 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
   }, [editorValue], 1000);
 
   return (
-    <div className={clsx(className, "flex flex-col w-full")}>
+    <div className={clsx(className, "flex flex-col h-full w-full")}>
       <PreviewToolbar toggleCode={toggleCode} shareCode={shareCode} copyCode={copyCode} saveCode={saveCode} />
       {showCode ?
 
-        <Split className={clsx("flex w-full")}
+        <Split className={clsx("flex w-full h-full")}
           sizes={[50, 50]}
           minSize={250}
           expandToMin={false}
@@ -78,7 +78,7 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
           cursor="col-resize"
         >
 
-          <LivePreview className="w-full h-full border-r-2 border-green-900 pr-2 rounded-sm" code={previewCode || ''} />
+          <LivePreview className="w-full border-r-2 border-green-900 pr-2 rounded-sm" code={previewCode || ''} />
           {showCode && <CodeEditor className={clsx(!showCode && "hidden")} defaultValue={editorValue} onChange={(v: any) => setEditorValue(v || '')} />}
         </Split>
 

@@ -1,22 +1,28 @@
+'use client'
 import Chat from "@/components/chat";
 import PreviewComponent from "@/components/preview-component";
 import { PromptForm } from "@/components/prompt-form";
 import { nanoid } from "ai";
 import Split from 'react-split';
-
+import clsx from "clsx";
+import { useState } from "react";
+import useAI from "@/lib/hooks/use-ai";
+import { IconOpenAI, IconUser } from "@/components/ui/icons";
+import { CodeMessageResponse } from "@/lib/model";
+import useShowCoversationStore from "@/lib/hooks/useShowCoversationStore";
 
 
 export default function Home() {
   const id = nanoid();
-
+  const { showConversation } = useShowCoversationStore();
   return (
-    <main className="flex flex-row h-screen w-full bg-gray-200 justify-center">
-      {/*  */}
-      <div className="w-1/3 h-full bg-slate-800">
-        <PromptForm className="h-full" id={id} showPrivate={false} />
-      </div>
-      <div className="w-2/3 h-full">
-        <PreviewComponent className="h-full" id={id} defaultCode={`
+    <div className="w-full h-full justify-center">
+      <div className="h-full flex flex-shrink-0 flex-row-reverse w-full">
+        <div className={clsx("w-1/3 bg-slate-800", !showConversation && "hidden")}>
+          <Chat className="" id={id} />
+        </div>
+        <div className="relative w-full h-full">
+          <PreviewComponent className="h-full" id={id} defaultCode={`
       import React, { useState } from 'react';
 
       const App = () => {
@@ -52,8 +58,14 @@ export default function Home() {
       };
       export default App;
 
-      `} />
+        `} />
+
+          {/* <div className="m-2 absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-green-200 w-[50%] h-32 rounded">
+            test
+          </div>  */}
+          <PromptForm className={clsx("bg-black border backdrop-blur-xl bg-opacity-70 absolute p-4 bottom-4 left-1/2 transform -translate-x-1/2 w-[40%] rounded-xl ", showConversation && "hidden")} id={id} showPrivate={false} />
+        </div>
       </div>
-    </main>
+    </div>
   );
 }

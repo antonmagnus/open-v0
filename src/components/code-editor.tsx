@@ -2,9 +2,7 @@
 import React, { HTMLAttributes, useEffect, useState } from 'react';
 import Editor, { OnMount } from '@monaco-editor/react';
 import useAI from '@/lib/hooks/use-ai';
-import { PreviewToolbar } from './preview-toolbar';
 import clsx from 'clsx';
-import { CodeMessageResponse } from '@/lib/model';
 
 interface CodeEditorProps extends HTMLAttributes<HTMLDivElement> {
   defaultValue: string;
@@ -27,6 +25,9 @@ function formatJSXCode(code: string) {
 
   // Replace escaped backslashes
   code = code.replace(/\\$/gm, '');
+
+  // Remove invalid comments
+  code = code.replaceAll(/<!--[\s\S]*?-->/g, '')
   return code;
 }
 const CodeEditor: React.FC<CodeEditorProps> = ({ defaultValue, onChange, className }) => {
@@ -55,9 +56,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultValue, onChange, classNa
   }, [aiResponses])
 
   return (
-    <div className={clsx(className, "flex flex-col w-full h-full")}>
+    <div className={clsx(className, "flex flex-col w-full")}>
       <Editor
-        height="85vh"
+        height="100%"
         defaultLanguage="javascript"
         defaultValue={defaultValue}
         value={code}
