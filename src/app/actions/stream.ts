@@ -86,7 +86,6 @@ export async function generate(input: PostMessages) {
 
         const { partialObjectStream } = await streamObject({
           model: openai(model),
-          maxTokens: 2000,
           system: systemPromptMessage,
           schema: z.object({
             description: z.string()
