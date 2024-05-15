@@ -24,9 +24,9 @@ interface PreviewProps extends HTMLAttributes<HTMLDivElement> {
 const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }) => {
   const [editorValue, setEditorValue] = useState(defaultCode);
   const [previewCode, setPreviewCode] = useState('');
-  const [showCode, setShowCode] = useState(true);
+  const [showCode, setShowCode] = useState(false);
+  const { screenSize, loading } = useScreenSize();
   const [allowSplit, setAllowSplit] = useState(true);
-  const { width, height } = useScreenSize();
 
   const toggleCode = () => {
     console.log("Toggle code")
@@ -43,12 +43,14 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
   }
 
   useEffect(() => {
-    if (width < 640) {
+    if (loading) return;
+    if (screenSize.width < 640) {
       setAllowSplit(false);
     } else {
       setAllowSplit(true);
     }
-  }, [width, height])
+  }, [screenSize.width, screenSize.height, loading])
+
   useDelayEffect(async () => {
     if (!editorValue || !editorValue.trim())
       return;
@@ -71,18 +73,7 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
   }, [editorValue], 1000);
 
 
-  if (!allowSplit) {
-    return (
-      <div className={clsx(className, "flex flex-col h-full w-screen")}>
-        <PreviewToolbar toggleCode={toggleCode} shareCode={shareCode} copyCode={copyCode} saveCode={saveCode} />
-        {showCode ?
-          <CodeEditor className="h-full w-full" defaultValue={editorValue} onChange={(v: any) => setEditorValue(v || '')} />
-          : <LivePreview className="w-full h-full p-2 rounded-sm" code={previewCode || ''} />
-        }
-      </div >
-    )
-  }
-  else {
+  if (allowSplit) {
     return (
       <div className={clsx(className, "flex flex-col h-full w-full")}>
         <PreviewToolbar toggleCode={toggleCode} shareCode={shareCode} copyCode={copyCode} saveCode={saveCode} />
@@ -116,6 +107,17 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
       </div>
 
     );
+  }
+  else {
+    return (
+      <div className={clsx(className, "flex flex-col h-full w-screen")}>
+        <PreviewToolbar toggleCode={toggleCode} shareCode={shareCode} copyCode={copyCode} saveCode={saveCode} />
+        {showCode ?
+          <CodeEditor className="h-full w-full" defaultValue={editorValue} onChange={(v: any) => setEditorValue(v || '')} />
+          : <LivePreview className="w-full h-full p-2 rounded-sm" code={previewCode || ''} />
+        }
+      </div >
+    )
   }
 };
 

@@ -6,6 +6,7 @@ import { CodeMessageResponse } from "@/lib/model"
 import clsx from "clsx"
 import { HTMLAttributes, JSX, SVGProps, useState } from "react"
 import { IconOpenAI, IconUser } from '@/components/ui/icons'
+import { auth } from "@/auth"
 
 interface PromptProps extends HTMLAttributes<HTMLDivElement> {
   id: string
@@ -37,6 +38,7 @@ export function PromptForm({ className, id, showPrivate }: PromptProps) {
     setPrivate(!isPrivate)
   }
   const submitPrompt = (event: React.FormEvent) => {
+
     event.preventDefault();  // Prevent default form submit behavior
     if (!prompt) {
       // Optionally, add feedback here

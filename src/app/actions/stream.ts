@@ -1,12 +1,14 @@
 
 'use server'
-import { streamObject, CoreMessage, CoreSystemMessage, OpenAIStream } from 'ai';
+import { streamObject, CoreMessage, CoreSystemMessage, OpenAIStream, nanoid } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 import { createStreamableValue } from 'ai/rsc';
 
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions.mjs";
 import { PostMessages } from "@/lib/model";
+import { kv } from '@vercel/kv';
+import { auth } from '@/auth';
 
 type systemPromptReq = {
   messages: ChatCompletionMessageParam[]
@@ -58,11 +60,51 @@ export default App;
 
   `;
 }
-
+async function storeMessageCompletion(chatId: string, completion: string, messages: any[], userId: string) {
+  'use server'
+  const title = messages[0].content.substring(0, 100)
+  const id = chatId ?? nanoid()
+  const createdAt = Date.now()
+  const path = `/chat/${id}`
+  const payload = {
+    id,
+    title,
+    userId,
+    createdAt,
+    path,
+    messages: [
+      ...messages,
+      {
+        content: completion,
+        role: 'assistant'
+      }
+    ]
+  }
+  await kv.hmset(`chat:${id}`, payload)
+  await kv.zadd(`user:chat:${userId}`, {
+    score: createdAt,
+    member: `chat:${id}`
+  })
+}
+const getSession = async () => {
+  const session = await auth()
+  return session
+}
 export async function generate(input: PostMessages) {
   'use server'
+  const chatId = input.id
   const messages = input.messages
   let systemPromptMessage: string
+  // const session = await getSession()
+  // console.log('session', session)
+  // const userId = session?.user?.id
+  // if (!userId || !chatId) {
+  //   console.log('userid', userId, 'chatid', chatId)
+  //   return {
+  //     error: 'Unauthorized'
+  //   }
+  // }
+
   try {
     systemPromptMessage = await getSystemPrompt({
       messages
@@ -70,9 +112,9 @@ export async function generate(input: PostMessages) {
   }
   catch (error: any) {
     console.error(error)
-    return new globalThis.Response(error, {
-      status: 401
-    })
+    return {
+      error: 'Unauthorized'
+    }
   }
   let retry = true;
   let model = "gpt-4o"
@@ -101,6 +143,9 @@ export async function generate(input: PostMessages) {
         for await (const partialObject of partialObjectStream) {
           stream.update(partialObject);
         }
+
+        //const completion = JSON.stringify(stream.value);
+        //await storeMessageCompletion(chatId, completion, messages, userId)
         stream.done();
       })();
 
@@ -111,9 +156,9 @@ export async function generate(input: PostMessages) {
       if (model === 'gpt-3.5-turbo-16k') {
         // retry bool not needed here, but just to be explicit
         retry = false
-        return new globalThis.Response(error, {
-          status: 401
-        })
+        return {
+          error: 'Unauthorized'
+        }
       }
       else {
         model = 'gpt-3.5-turbo-16k'

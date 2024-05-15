@@ -5,6 +5,8 @@ import { useEffect, useRef } from 'react';
 import useAIStore, { AIStore } from './useAIStore';
 import { generate } from '../../app/actions/stream'
 import { readStreamableValue } from 'ai/rsc';
+import { auth } from '@/auth';
+import { useSession } from 'next-auth/react';
 export type MessageParam = ChatCompletionMessageParam
 
 const testResponseChunks: string[] = [
@@ -39,9 +41,6 @@ const testResponseChunks: string[] = [
 
 function useAI() {
 
-  // useEffect(() => {
-  //   setAIOptions(initOptions);
-  // }, [initOptions, setAIOptions]);
 
   const [aiMessages, aiResponses, aiOptions, setAIOptions, appendAIMessage, appendChunkToLastAIMessage, updateLastAIMessage, appendLastAIResponse, updateLastAIResponse] = useAIStore(
     useShallow((state: AIStore) => [
@@ -56,7 +55,7 @@ function useAI() {
       state.updateLastAIResponse,
     ]),
   )
-
+  const session = useSession()
   const aiMessagesRef = useRef(aiMessages);
   aiMessagesRef.current = aiMessages;
 
@@ -65,10 +64,14 @@ function useAI() {
   }, [aiMessages]);
 
 
-  const sendMessage = (message: MessageParam) => {
+  const sendMessage = async (message: MessageParam) => {
     // sends a message to the server
     // gets the code appended
     if (!aiOptions) {
+      return;
+    }
+    if (!session.data?.user) {
+      console.log("No user session found");
       return;
     }
     appendAIMessage(message);
@@ -77,26 +80,30 @@ function useAI() {
       messages: useAIStore.getState().aiMessages || [],
       mode: aiOptions.mode,
       isPrivate: false,
+      id: aiOptions.id,
     };
+    try {
+      generate(sendMessage).then(async (res) => {
+        if (res && 'object' in res) {
+          const { object } = res;
+          const message: MessageParam = {
+            content: "",
+            role: "assistant",
+          };
+          appendAIMessage(message);
+          appendLastAIResponse({ code: "", description: "" });
 
-    generate(sendMessage).then(async (res) => {
-      if (res && 'object' in res) {
-        const { object } = res;
-        const message: MessageParam = {
-          content: "",
-          role: "assistant",
-        };
-        appendAIMessage(message);
-        appendLastAIResponse({ code: "", description: "" });
-
-        for await (const partialObject of readStreamableValue(object)) {
-          if (partialObject) {
-            updateLastAIResponse(partialObject)
-            updateLastAIMessage(JSON.stringify(partialObject))
+          for await (const partialObject of readStreamableValue(object)) {
+            if (partialObject) {
+              updateLastAIResponse(partialObject)
+              updateLastAIMessage(JSON.stringify(partialObject))
+            }
           }
         }
-      }
-    })
+      })
+    } catch (error) {
+      console.log("Error sending message", error);
+    }
   }
 
   const setMode = (mode: "quality" | "speed") => {
