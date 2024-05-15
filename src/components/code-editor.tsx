@@ -3,6 +3,7 @@ import React, { HTMLAttributes, useEffect, useState } from 'react';
 import Editor, { OnMount } from '@monaco-editor/react';
 import useAI from '@/lib/hooks/use-ai';
 import clsx from 'clsx';
+import { Button } from './ui/button';
 
 interface CodeEditorProps extends HTMLAttributes<HTMLDivElement> {
   defaultValue: string;
@@ -68,9 +69,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ defaultValue, onChange, classNa
         onChange={(v) => handleEditorChange(v)}
       />
       {/* code toolbar*/}
-      <div className='flex flex-row space-x-4 bg-blue-500 justify-end p-4'>
-        <button className="p-2 border bg-black text-white rounded-md">Cancel</button>
-        <button onClick={saveCode} className="p-2 border bg-black text-white rounded-md">Save changes</button>
+      <div className='flex flex-row space-x-4 bg-muted/50 justify-end p-4 border-r'>
+        <Button className="p-2 border rounded-md">Cancel</Button>
+        <Button onClick={saveCode} className="p-2 border rounded-md">Save changes</Button>
       </div>
     </div>
   );

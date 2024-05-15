@@ -10,6 +10,7 @@ import { toast } from 'react-hot-toast'
 import clsx from 'clsx';
 import useAI from '@/lib/hooks/use-ai';
 import { PreviewToolbar } from './preview-toolbar';
+import { useScreenSize } from '@/lib/hooks/use-screensize';
 
 
 // should replace this component with a hook similar to useChat.
@@ -24,6 +25,8 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
   const [editorValue, setEditorValue] = useState(defaultCode);
   const [previewCode, setPreviewCode] = useState('');
   const [showCode, setShowCode] = useState(true);
+  const [allowSplit, setAllowSplit] = useState(true);
+  const { width, height } = useScreenSize();
 
   const toggleCode = () => {
     console.log("Toggle code")
@@ -39,7 +42,13 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
     console.log("Save code")
   }
 
-
+  useEffect(() => {
+    if (width < 640) {
+      setAllowSplit(false);
+    } else {
+      setAllowSplit(true);
+    }
+  }, [width, height])
   useDelayEffect(async () => {
     if (!editorValue || !editorValue.trim())
       return;
@@ -61,33 +70,53 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
 
   }, [editorValue], 1000);
 
-  return (
-    <div className={clsx(className, "flex flex-col h-full w-full")}>
-      <PreviewToolbar toggleCode={toggleCode} shareCode={shareCode} copyCode={copyCode} saveCode={saveCode} />
-      {showCode ?
 
-        <Split className={clsx("flex w-full h-full")}
-          sizes={[50, 50]}
-          minSize={250}
-          expandToMin={false}
-          gutterSize={10}
-          gutterAlign="center"
-          snapOffset={30}
-          dragInterval={1}
-          direction="horizontal"
-          cursor="col-resize"
-        >
+  if (!allowSplit) {
+    return (
+      <div className={clsx(className, "flex flex-col h-full w-screen")}>
+        <PreviewToolbar toggleCode={toggleCode} shareCode={shareCode} copyCode={copyCode} saveCode={saveCode} />
+        {showCode ?
+          <CodeEditor className="h-full w-full" defaultValue={editorValue} onChange={(v: any) => setEditorValue(v || '')} />
+          : <LivePreview className="w-full h-full p-2 rounded-sm" code={previewCode || ''} />
+        }
+      </div >
+    )
+  }
+  else {
+    return (
+      <div className={clsx(className, "flex flex-col h-full w-full")}>
+        <PreviewToolbar toggleCode={toggleCode} shareCode={shareCode} copyCode={copyCode} saveCode={saveCode} />
+        {showCode ?
+          <Split className={clsx("flex w-full h-full")}
+            sizes={[50, 50]}
+            minSize={250}
+            expandToMin={false}
+            gutterSize={10}
+            gutterAlign="center"
+            gutterStyle={(dimension, gutterSize) => ({
+              'flex-basis': `${gutterSize}px`,
+              'cursor': 'col-resize',
+              ':hover': {
+                'background': 'cornflowerblue'
+              }
+            })}
+            snapOffset={30}
+            dragInterval={1}
+            direction="horizontal"
+            cursor="col-resize"
+          >
 
-          <LivePreview className="w-full border-r-2 border-green-900 pr-2 rounded-sm" code={previewCode || ''} />
-          {showCode && <CodeEditor className={clsx(!showCode && "hidden")} defaultValue={editorValue} onChange={(v: any) => setEditorValue(v || '')} />}
-        </Split>
+            <LivePreview className="w-full rounded-sm" code={previewCode || ''} />
+            {showCode && <CodeEditor className={clsx(!showCode && "hidden")} defaultValue={editorValue} onChange={(v: any) => setEditorValue(v || '')} />}
+          </Split>
 
-        : <LivePreview className="w-full h-full p-2 rounded-sm" code={previewCode || ''} />
-      }
+          : <LivePreview className="w-full h-full p-2 rounded-sm" code={previewCode || ''} />
+        }
 
-    </div>
+      </div>
 
-  );
+    );
+  }
 };
 
 export default PreviewComponent;

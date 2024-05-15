@@ -30,12 +30,12 @@ export function Chat({ className, id }: ChatProps) {
           {aiMessages?.map((msg, i) => (
             <div key={i} className="flex space-4">
               {msg.role === "user" ?
-                <div className="flex text-white items-center space-x-4">
+                <div className="flex text-accent-foreground items-center space-x-4">
                   <IconUser />
                   <p>{msg.content as string}</p>
                 </div>
                 :
-                <div className="flex text-white items-center space-x-4">
+                <div className="flex text-accent-foreground items-center space-x-4">
                   <IconOpenAI />
                   <p>{tryGetDescription(msg.content || '')}</p>
                 </div>
@@ -44,7 +44,7 @@ export function Chat({ className, id }: ChatProps) {
           ))}
         </div>
       </div>
-      <PromptForm className='sticky p-4 bg-black inset-x-0 bottom-0' id={id} showPrivate={false} />
+      <PromptForm className='sticky p-4 inset-x-0 bottom-0' id={id} showPrivate={false} />
     </div>
   );
 };

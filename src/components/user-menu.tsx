@@ -52,7 +52,7 @@ export function UserMenu({ user }: UserMenuProps) {
         <DropdownMenuContent sideOffset={8} align="start" className="w-[180px]">
           <DropdownMenuItem className="flex-col items-start">
             <div className="text-xs font-medium">{user?.name}</div>
-            <div className="text-xs text-zinc-500">{user?.email}</div>
+            <div className="text-xs">{user?.email}</div>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem

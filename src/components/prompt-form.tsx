@@ -56,7 +56,7 @@ export function PromptForm({ className, id, showPrivate }: PromptProps) {
       <form ref={formRef} onSubmit={(e) => submitPrompt(e)} className={clsx(className)}>
         <div className="pb-6">
           <textarea
-            className="w-full min-h-12 px-4 py-2 rounded-md text-white placeholder-gray-400 border-gray-200 border focus:outline-none focus:border-gray-500 transition-all duration-200 ease-in-out"
+            className="w-full min-h-12 px-4 py-2 rounded-md text-accent-foreground bg-muted/70 bg-opacity-70 backdrop-blur-xl placeholder-gray-400 border-gray-200 border focus:outline-none focus:border-gray-500 transition-all duration-200 ease-in-out"
             placeholder="Type here..."
             value={prompt}
             onKeyDown={onKeyDown}
@@ -65,13 +65,13 @@ export function PromptForm({ className, id, showPrivate }: PromptProps) {
         </div>
         <div className="flex justify-between items-center">
           <div className="flex space-x-4">
-            <Button className="text-gray-400" variant="ghost"
+            <Button className="" variant="ghost"
               onClick={selectImage}
             >
               <ImageIcon className="h-5 w-5" />
               <p className="px-2">Image</p>
             </Button>
-            <Button className={clsx(!showPrivate && "hidden", "text-gray-400")} variant="ghost"
+            <Button className={clsx(!showPrivate && "hidden", "")} variant="ghost"
               onClick={togglePrivate}
             >
               {isPrivate ?
@@ -86,20 +86,20 @@ export function PromptForm({ className, id, showPrivate }: PromptProps) {
           </div>
           <div className="flex space-x-4" aria-label="Quality or Speed">
             <div className="flex rounded-md border ">
-              <Button className="text-gray-400"
+              <Button className=""
                 variant={quality ? "default" : "outline"}
                 onClick={toggleQuality}
               >
                 Quality
               </Button>
-              <Button className="text-gray-400"
+              <Button className=""
                 variant={speed ? "default" : "outline"}
                 onClick={toggleSpeed}
               >
                 Speed
               </Button>
             </div>
-            <button type="submit" className="text-white"
+            <button type="submit" className=""
               disabled={!prompt}>
               <ArrowUpIcon className="h-6 w-6" />
             </button>

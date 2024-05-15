@@ -14,7 +14,7 @@ export function PreviewToolbar(toolbarProps: ToolbarProps) {
   const { toggleCode, shareCode, copyCode, saveCode } = toolbarProps
 
   return (
-    <div className="flex justify-end items-center gap-2 p-2 border border-gray-200 bg-gray-100 dark:bg-black dark:border-gray-800">
+    <div className="flex justify-end items-center gap-2 p-2 border border-gray-200 dark:border-gray-800">
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
