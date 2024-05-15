@@ -11,6 +11,7 @@ import { IconOpenAI, IconUser } from "@/components/ui/icons";
 import { CodeMessageResponse } from "@/lib/model";
 import useShowCoversationStore from "@/lib/hooks/useShowCoversationStore";
 
+export const maxDuration = 60;
 
 export default function Home() {
   const id = nanoid();

@@ -36,7 +36,6 @@ const testResponseChunks: string[] = [
   "0:\" default\"\n0:\" App\"\n",
   "0:\";\\n\"\n0:\"```\"\n"
 ]
-export const maxDuration = 60;
 
 function useAI() {
 
