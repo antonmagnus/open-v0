@@ -59,7 +59,6 @@ export default App;
   `;
 }
 
-
 export async function generate(input: PostMessages) {
   'use server'
   const messages = input.messages
@@ -76,7 +75,7 @@ export async function generate(input: PostMessages) {
     })
   }
   let retry = true;
-  let model = 'gpt-4-0125-preview'
+  let model = "gpt-4o"
   // try using gpt 4 first, if it fails (can be context window or rate limit), fallback to gpt 3.5
   // the open ai and the stream response should be seperate try catch blocks and not while loop
   // now the storage can happen twice but im tiered and i dont want to think about it
