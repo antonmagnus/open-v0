@@ -8,7 +8,7 @@ import { createStreamableValue } from 'ai/rsc';
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions.mjs";
 import { PostMessages } from "@/lib/model";
 import { kv } from '@vercel/kv';
-import { auth } from '@/auth';
+//import { auth } from '@/app';
 
 type systemPromptReq = {
   messages: ChatCompletionMessageParam[]
@@ -87,8 +87,8 @@ async function storeMessageCompletion(chatId: string, completion: string, messag
   })
 }
 const getSession = async () => {
-  const session = await auth()
-  return session
+  // const session = await auth()
+  // return session
 }
 export async function generate(input: PostMessages) {
   'use server'

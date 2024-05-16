@@ -93,6 +93,7 @@ function useAI() {
           appendAIMessage(message);
           appendLastAIResponse({ code: "", description: "" });
 
+          // @ts-ignore
           for await (const partialObject of readStreamableValue(object)) {
             if (partialObject) {
               updateLastAIResponse(partialObject)
