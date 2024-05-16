@@ -8,8 +8,7 @@ import { createStreamableValue } from 'ai/rsc';
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions.mjs";
 import { PostMessages } from "@/lib/model";
 import { kv } from '@vercel/kv';
-//import { auth } from '@/app';
-
+import { getSession } from '@/app/actions/serverauth'
 type systemPromptReq = {
   messages: ChatCompletionMessageParam[]
 }
@@ -86,24 +85,21 @@ async function storeMessageCompletion(chatId: string, completion: string, messag
     member: `chat:${id}`
   })
 }
-const getSession = async () => {
-  // const session = await auth()
-  // return session
-}
+
 export async function generate(input: PostMessages) {
   'use server'
   const chatId = input.id
   const messages = input.messages
   let systemPromptMessage: string
-  // const session = await getSession()
-  // console.log('session', session)
-  // const userId = session?.user?.id
-  // if (!userId || !chatId) {
-  //   console.log('userid', userId, 'chatid', chatId)
-  //   return {
-  //     error: 'Unauthorized'
-  //   }
-  // }
+  const session = await getSession()
+  console.log('session', session)
+  const userId = session?.user?.id
+  if (!userId || !chatId) {
+    console.log('userid', userId, 'chatid', chatId)
+    return {
+      error: 'Unauthorized'
+    }
+  }
 
   try {
     systemPromptMessage = await getSystemPrompt({

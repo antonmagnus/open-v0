@@ -28,6 +28,15 @@ export const {
       }
       return token
     },
+    session: ({ session, token }) => {
+      if (token) {
+        session.user.id = token.id as string
+        session.user.image = token.image as string
+      }
+      return {
+        ...session,
+      };
+    },
     authorized({ auth }) {
       return !!auth?.user // this ensures there is a logged in user for -every- request
     }
