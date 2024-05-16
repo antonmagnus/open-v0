@@ -17,7 +17,7 @@ import { useScreenSize } from '@/lib/hooks/use-screensize';
 // avoid prop drilling this
 interface PreviewProps extends HTMLAttributes<HTMLDivElement> {
   id: string
-  defaultCode: string;
+  defaultCode?: string;
 }
 
 

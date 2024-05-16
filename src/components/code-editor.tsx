@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import { Button } from './ui/button';
 
 interface CodeEditorProps extends HTMLAttributes<HTMLDivElement> {
-  defaultValue: string;
+  defaultValue?: string;
   onChange: (value: any) => void;
 }
 function formatJSXCode(code: string) {
@@ -31,11 +31,11 @@ function formatJSXCode(code: string) {
   code = code.replaceAll(/<!--[\s\S]*?-->/g, '')
   return code;
 }
-const CodeEditor: React.FC<CodeEditorProps> = ({ defaultValue, onChange, className }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ onChange, className, defaultValue }) => {
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     // Handle the editor's mount event if needed
   };
-  const [code, setCode] = useState(defaultValue);
+  const [code, setCode] = useState(defaultValue || '');
   const { aiResponses, updateLastResponse } = useAI()
 
   const handleEditorChange = (value: any) => {
