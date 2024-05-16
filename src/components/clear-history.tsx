@@ -4,7 +4,7 @@ import * as React from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
 
-import { ServerActionResult } from '@/lib/types'
+import { ServerActionResult } from '@/lib/model'
 import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
@@ -20,10 +20,10 @@ import {
 import { IconSpinner } from '@/components/ui/icons'
 
 interface ClearHistoryProps {
-  clearChats: () => ServerActionResult<void>
+  clearProjects: () => ServerActionResult<void>
 }
 
-export function ClearHistory({ clearChats }: ClearHistoryProps) {
+export function ClearHistory({ clearProjects }: ClearHistoryProps) {
   const [open, setOpen] = React.useState(false)
   const [isPending, startTransition] = React.useTransition()
   const router = useRouter()
@@ -40,7 +40,7 @@ export function ClearHistory({ clearChats }: ClearHistoryProps) {
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete your chat history and remove your data
+            This will permanently delete your project history and remove your data
             from our servers.
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -51,7 +51,7 @@ export function ClearHistory({ clearChats }: ClearHistoryProps) {
             onClick={event => {
               event.preventDefault()
               startTransition(async () => {
-                const result = await clearChats()
+                const result = await clearProjects()
 
                 if (result && 'error' in result) {
                   toast.error(result.error)

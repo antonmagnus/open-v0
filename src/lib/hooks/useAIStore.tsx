@@ -16,6 +16,21 @@ export interface AIStore {
   updateLastAIResponse: (response: CodeMessageResponse) => void
 }
 
+const assistantMessageToCodeMessageResponse = (message: MessageParam): CodeMessageResponse => {
+
+  // // @ts-ignore
+  // let content = ''
+  // for (const partialObject of message.content as ChatCompletionContentPart[]) {
+  //   if (partialObject) {
+  //     content += partialObject
+  //   }
+  // }
+  // const storedResponse = JSON.parse(content)
+  // return storedResponse.curr
+  const content = JSON.parse(message.content as string) as CodeMessageResponse
+
+  return content
+}
 /**
  * A hook to subscribe to the store. Look at https://github.com/pmndrs/zustand for more
  * documentation
@@ -36,8 +51,18 @@ const useAIStore = create<AIStore>((set) => ({
   },
 
   setAIMessages: (messages: MessageParam[]) => {
-    set({
-      aiMessages: messages,
+    const responses: CodeMessageResponse[] = [];
+    for (const message of messages) {
+      if (message.role === 'assistant') {
+        const mes = assistantMessageToCodeMessageResponse(message)
+        responses.push(mes);
+      }
+    }
+    set(() => {
+      return {
+        aiMessages: messages,
+        aiResponses: responses,
+      };
     });
   },
   appendAIMessage: (message: MessageParam) => {

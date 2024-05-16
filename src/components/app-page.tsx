@@ -5,13 +5,32 @@ import { PromptForm } from "@/components/prompt-form";
 import { nanoid } from "ai";
 import clsx from "clsx";
 import useShowCoversationStore from "@/lib/hooks/useShowCoversationStore";
+import { HTMLAttributes, useEffect } from "react";
+import { Project } from "@/lib/model";
+import useAI from "@/lib/hooks/use-ai";
+interface AppPageProps extends HTMLAttributes<HTMLDivElement> {
+  project?: Project
+}
+//export function Chat({ className, id }: ChatProps)
+export default function AppPage({ className, project }: AppPageProps) {
 
-
-export default function AppPage() {
   //const session = await auth()
   //if (!session) return <div>Not authenticated</div>
+
   const id = nanoid();
   const { showConversation } = useShowCoversationStore();
+  const { initProject } = useAI()
+  useEffect(() => {
+    if (project) {
+      initProject(project.aiOptions, project.messages)
+    } else {
+      initProject({
+        id,
+        mode: 'speed',
+        isPrivate: false,
+      }, [])
+    }
+  }, [project])
   return (
     <div className="w-full h-full justify-center">
       <div className="h-full flex flex-shrink-0 flex-row-reverse w-full">

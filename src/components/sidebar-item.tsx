@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-import { type Chat } from '@/lib/types'
+import { type Project } from '@/lib/model'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
 import { IconMessage, IconUsers } from '@/components/ui/icons'
@@ -14,20 +14,20 @@ import {
 } from '@/components/ui/tooltip'
 
 interface SidebarItemProps {
-  chat: Chat
+  project: Project
   children: React.ReactNode
 }
 
-export function SidebarItem({ chat, children }: SidebarItemProps) {
+export function SidebarItem({ project, children }: SidebarItemProps) {
   const pathname = usePathname()
-  const isActive = pathname === chat.path
+  const isActive = pathname === project.path
 
-  if (!chat?.id) return null
+  if (!project?.id) return null
 
   return (
     <div className="relative">
       <div className="absolute left-2 top-1 flex h-6 w-6 items-center justify-center">
-        {chat.sharePath ? (
+        {project.sharePath ? (
           <Tooltip delayDuration={1000}>
             <TooltipTrigger
               tabIndex={-1}
@@ -35,14 +35,14 @@ export function SidebarItem({ chat, children }: SidebarItemProps) {
             >
               <IconUsers className="mr-2" />
             </TooltipTrigger>
-            <TooltipContent>This is a shared chat.</TooltipContent>
+            <TooltipContent>This is a shared project.</TooltipContent>
           </Tooltip>
         ) : (
           <IconMessage className="mr-2" />
         )}
       </div>
       <Link
-        href={chat.path}
+        href={project.path}
         className={cn(
           buttonVariants({ variant: 'ghost' }),
           'group w-full pl-8 pr-16',
@@ -51,9 +51,9 @@ export function SidebarItem({ chat, children }: SidebarItemProps) {
       >
         <div
           className="relative max-h-5 flex-1 select-none overflow-hidden text-ellipsis break-all"
-          title={chat.title}
+          title={project.title}
         >
-          <span className="whitespace-nowrap">{chat.title}</span>
+          <span className="whitespace-nowrap">{project.title}</span>
         </div>
       </Link>
       {isActive && <div className="absolute right-2 top-1">{children}</div>}

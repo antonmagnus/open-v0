@@ -31,11 +31,11 @@ export async function Header() {
             <SidebarFooter>
               <div className='m-2 flex w-full flex-col'>
                 <Button className='p-5'>
-                  <Link href="/">New Chat</Link>
+                  <Link href="/">New Project</Link>
                 </Button>
                 <div>
                   <ThemeToggle />
-                  {/* <ClearHistory clearChats={clearChats} /> */}
+                  {/* <ClearHistory clearProjects={clearProjects} /> */}
                 </div>
               </div>
             </SidebarFooter>

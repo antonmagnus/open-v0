@@ -2,10 +2,8 @@ import { ChatCompletionMessageParam } from "openai/resources/chat/completions.mj
 
 
 export type PostMessages = {
-  id?: string,
   messages: ChatCompletionMessageParam[],
-  mode: "quality" | "speed",
-  isPrivate: boolean,
+  aiOpitons: AIOptions,
 }
 
 export type CodeMessageResponse = {
@@ -37,3 +35,21 @@ export interface AIOptions {
   mode: "quality" | "speed",
   isPrivate: boolean,
 }
+
+export interface Project extends Record<string, any> {
+  id: string
+  title: string
+  createdAt: Date
+  userId: string
+  path: string
+  messages: ChatCompletionMessageParam[]
+  sharePath?: string
+  aiOptions: AIOptions
+}
+
+export type ServerActionResult<Result> = Promise<
+  | Result
+  | {
+    error: string
+  }
+>

@@ -4,7 +4,7 @@ import * as React from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
 
-import { type Chat, ServerActionResult } from '@/lib/types'
+import { type Project, ServerActionResult } from '@/lib/model'
 import { cn, formatDate } from '@/lib/utils'
 import {
   AlertDialog,
@@ -40,15 +40,15 @@ import {
 } from '@/components/ui/tooltip'
 
 interface SidebarActionsProps {
-  chat: Chat
-  removeChat: (args: { id: string; path: string }) => ServerActionResult<void>
-  shareChat: (chat: Chat) => ServerActionResult<Chat>
+  project: Project
+  removeProject: (args: { id: string; path: string }) => ServerActionResult<void>
+  shareProject: (project: Project) => ServerActionResult<Project>
 }
 
 export function SidebarActions({
-  chat,
-  removeChat,
-  shareChat
+  project,
+  removeProject,
+  shareProject
 }: SidebarActionsProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
@@ -57,13 +57,13 @@ export function SidebarActions({
   const router = useRouter()
 
 
-  const copyShareLink = React.useCallback(async (chat: Chat) => {
-    if (!chat.sharePath) {
+  const copyShareLink = React.useCallback(async (project: Project) => {
+    if (!project.sharePath) {
       return toast.error('Could not copy share link to clipboard')
     }
 
     const url = new URL(window.location.href)
-    url.pathname = chat.sharePath
+    url.pathname = project.sharePath
     navigator.clipboard.writeText(url.toString())
     setShareDialogOpen(false)
     toast.success('Share link copied to clipboard', {
@@ -96,7 +96,7 @@ export function SidebarActions({
               <span className="sr-only">Share</span>
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Share chat</TooltipContent>
+          <TooltipContent>Share project</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -110,7 +110,7 @@ export function SidebarActions({
               <span className="sr-only">Delete</span>
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Delete chat</TooltipContent>
+          <TooltipContent>Delete project</TooltipContent>
         </Tooltip>
       </div>
       {/* Share dialog       */}
@@ -118,21 +118,21 @@ export function SidebarActions({
       <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Share link to chat</DialogTitle>
+            <DialogTitle>Share link to project</DialogTitle>
             <DialogDescription>
-              Anyone with the URL will be able to view the shared chat.
+              Anyone with the URL will be able to view the shared project.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-1 rounded-md border p-4 text-sm">
-            <div className="font-medium">{chat.title}</div>
+            <div className="font-medium">{project.title}</div>
             <div className="text-muted-foreground">
-              {formatDate(chat.createdAt)} · {chat.messages.length} messages
+              {formatDate(project.createdAt)} · {project.messages.length} messages
             </div>
           </div>
           <DialogFooter className="items-center">
-            {chat.sharePath && (
+            {project.sharePath && (
               <Link
-                href={chat.sharePath}
+                href={project.sharePath}
                 className={cn(
                   badgeVariants({ variant: 'secondary' }),
                   'mr-auto'
@@ -140,20 +140,20 @@ export function SidebarActions({
                 target="_blank"
               >
                 <IconUsers className="mr-2" />
-                {chat.sharePath}
+                {project.sharePath}
               </Link>
             )}
             <Button
               disabled={isSharePending}
               onClick={() => {
                 startShareTransition(async () => {
-                  if (chat.sharePath) {
+                  if (project.sharePath) {
                     await new Promise(resolve => setTimeout(resolve, 500))
-                    copyShareLink(chat)
+                    copyShareLink(project)
                     return
                   }
 
-                  const result = await shareChat(chat)
+                  const result = await shareProject(project)
 
                   if (result && 'error' in result) {
                     toast.error(result.error)
@@ -181,7 +181,7 @@ export function SidebarActions({
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete your chat message and remove your
+              This will permanently delete your project message and remove your
               data from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -194,9 +194,9 @@ export function SidebarActions({
               onClick={event => {
                 event.preventDefault()
                 startRemoveTransition(async () => {
-                  const result = await removeChat({
-                    id: chat.id,
-                    path: chat.path
+                  const result = await removeProject({
+                    id: project.id,
+                    path: project.path
                   })
 
                   if (result && 'error' in result) {
@@ -207,7 +207,7 @@ export function SidebarActions({
                   setDeleteDialogOpen(false)
                   router.refresh()
                   router.push('/')
-                  toast.success('Chat deleted')
+                  toast.success('Project deleted')
                 })
               }}
             >

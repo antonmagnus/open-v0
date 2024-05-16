@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { createStreamableValue } from 'ai/rsc';
 
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions.mjs";
-import { PostMessages } from "@/lib/model";
+import { CodeMessageResponse, PostMessages } from "@/lib/model";
 import { kv } from '@vercel/kv';
 import { getSession } from '@/app/actions/serverauth'
 type systemPromptReq = {
@@ -59,43 +59,59 @@ export default App;
 
   `;
 }
-async function storeMessageCompletion(chatId: string, completion: string, messages: any[], userId: string) {
+type storedResponse = {
+  curr: CodeMessageResponse | null
+  next: CodeMessageResponse | null
+}
+const getMessageFromCompletion = (completion: string): CodeMessageResponse | null => {
+  const storedResponse = JSON.parse(completion) as storedResponse
+  return storedResponse.curr
+}
+async function storeMessageCompletion(projectId: string, completion: string, messages: ChatCompletionMessageParam[], userId: string, aiOptions?: any) {
   'use server'
-  const title = messages[0].content.substring(0, 100)
-  const id = chatId ?? nanoid()
+  if (!messages || messages.length === 0) {
+    return
+  }
+  const comp = getMessageFromCompletion(completion)
+  if (!comp) {
+    return
+  }
+  const firstMessage = messages[0].content as string
+  const title = firstMessage.substring(0, 100)
+  const id = projectId ?? nanoid()
   const createdAt = Date.now()
-  const path = `/chat/${id}`
+  const path = `/project/${id}`
   const payload = {
     id,
     title,
     userId,
     createdAt,
     path,
+    aiOptions,
     messages: [
       ...messages,
       {
-        content: completion,
+        content: JSON.stringify(comp),
         role: 'assistant'
       }
     ]
   }
-  await kv.hmset(`chat:${id}`, payload)
-  await kv.zadd(`user:chat:${userId}`, {
+  await kv.hmset(`project:${id}`, payload)
+  await kv.zadd(`user:project:${userId}`, {
     score: createdAt,
-    member: `chat:${id}`
+    member: `project:${id}`
   })
 }
 
 export async function generate(input: PostMessages) {
   'use server'
-  const chatId = input.id
+  const projectId = input.aiOpitons.id
   const messages = input.messages
+  const aiOptions = input.aiOpitons
   let systemPromptMessage: string
   const session = await getSession()
-  console.log('session', session)
   const userId = session?.user?.id
-  if (!userId || !chatId) {
-    console.log('userid', userId, 'chatid', chatId)
+  if (!userId || !projectId) {
     return {
       error: 'Unauthorized'
     }
@@ -140,8 +156,8 @@ export async function generate(input: PostMessages) {
           stream.update(partialObject);
         }
 
-        //const completion = JSON.stringify(stream.value);
-        //await storeMessageCompletion(chatId, completion, messages, userId)
+        const completion = JSON.stringify(stream.value);
+        await storeMessageCompletion(projectId, completion, messages, userId, aiOptions)
         stream.done();
       })();
 

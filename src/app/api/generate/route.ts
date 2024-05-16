@@ -70,7 +70,8 @@ export default App;
 
 export async function POST(req: any) {
   const json = await req.json()
-  let { id, messages } = json as PostMessages
+  let { aiOpitons, messages } = json as PostMessages
+  let { id } = aiOpitons
   if (!id) {
     id = nanoid()
   }

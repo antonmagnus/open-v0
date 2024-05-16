@@ -1,3 +1,4 @@
+'use client'
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { AIOptions, CodeMessageResponse, PostMessages } from '../model';
 import { useShallow } from 'zustand/react/shallow'
@@ -6,7 +7,7 @@ import useAIStore, { AIStore } from './useAIStore';
 import { generate } from '../../app/actions/stream'
 import { readStreamableValue } from 'ai/rsc';
 import { auth } from '@/auth';
-import { useSession } from 'next-auth/react';
+//import { useSession } from 'next-auth/react';
 export type MessageParam = ChatCompletionMessageParam
 
 const testResponseChunks: string[] = [
@@ -42,7 +43,7 @@ const testResponseChunks: string[] = [
 function useAI() {
 
 
-  const [aiMessages, aiResponses, aiOptions, setAIOptions, appendAIMessage, appendChunkToLastAIMessage, updateLastAIMessage, appendLastAIResponse, updateLastAIResponse] = useAIStore(
+  const [aiMessages, aiResponses, aiOptions, setAIOptions, appendAIMessage, appendChunkToLastAIMessage, updateLastAIMessage, appendLastAIResponse, updateLastAIResponse, setAIMessages] = useAIStore(
     useShallow((state: AIStore) => [
       state.aiMessages,
       state.aiResponses,
@@ -53,9 +54,10 @@ function useAI() {
       state.updateLastAIMessage,
       state.appendAIResponse,
       state.updateLastAIResponse,
+      state.setAIMessages
     ]),
   )
-  const session = useSession()
+  //const session = useSession()
   const aiMessagesRef = useRef(aiMessages);
   aiMessagesRef.current = aiMessages;
 
@@ -70,17 +72,11 @@ function useAI() {
     if (!aiOptions) {
       return;
     }
-    if (!session.data?.user) {
-      console.log("No user session found");
-      return;
-    }
     appendAIMessage(message);
 
     const sendMessage: PostMessages = {
       messages: useAIStore.getState().aiMessages || [],
-      mode: aiOptions.mode,
-      isPrivate: false,
-      id: aiOptions.id,
+      aiOpitons: aiOptions,
     };
     try {
       generate(sendMessage).then(async (res) => {
@@ -125,6 +121,11 @@ function useAI() {
     updateLastAIResponse({ code: content, description: desc });
   }
 
-  return { setAIOptions, setMode, setPrivate, sendMessage, aiMessages, aiResponses, updateLastResponse };
+  const initProject = (aiOptions: AIOptions, aiMessages: ChatCompletionMessageParam[]) => {
+    setAIOptions(aiOptions);
+    setAIMessages(aiMessages);
+  }
+
+  return { initProject, setAIOptions, setMode, setPrivate, sendMessage, aiMessages, aiResponses, updateLastResponse };
 }
 export default useAI;
