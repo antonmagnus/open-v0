@@ -2,7 +2,7 @@
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { AIOptions, CodeMessageResponse, PostMessages, Project } from '../model';
 import { useShallow } from 'zustand/react/shallow'
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useAIStore, { AIStore } from './useAIStore';
 import { generate } from '../../app/actions/stream'
 import { readStreamableValue } from 'ai/rsc';
@@ -42,11 +42,13 @@ const testResponseChunks: string[] = [
 function useAI() {
 
 
-  const [project, setProject, aiResponses, updateAIOptions, appendAIMessage, appendChunkToLastAIMessage, updateLastAIMessage, appendLastAIResponse, updateLastAIResponse, setAIMessages, isPreview, setIsPreview] = useAIStore(
+  const [project, setProject, aiResponses, isStreaming, setIsStreaming, updateAIOptions, appendAIMessage, appendChunkToLastAIMessage, updateLastAIMessage, appendLastAIResponse, updateLastAIResponse, setAIMessages, isPreview, setIsPreview] = useAIStore(
     useShallow((state: AIStore) => [
       state.project,
       state.setProject,
       state.aiResponses,
+      state.isStreaming,
+      state.setIsStreaming,
       state.updateAIOptions,
       state.appendAIMessage,
       state.appendChunkToLastAIMessage,
@@ -66,8 +68,8 @@ function useAI() {
     aiMessagesRef.current = project.messages; // Update ref whenever aiMessages changes
   }, [project.messages]);
 
-
   const sendMessage = async (message: MessageParam) => {
+
     // sends a message to the server
     // gets the code appended
     if (!project || isPreview) {
@@ -80,6 +82,7 @@ function useAI() {
     };
     try {
       generate(sendMessage).then(async (res) => {
+        setIsStreaming(true);
         if (res && 'object' in res) {
           const { object } = res;
           const message: MessageParam = {
@@ -100,6 +103,9 @@ function useAI() {
       })
     } catch (error) {
       console.log("Error sending message", error);
+    }
+    finally {
+      setIsStreaming(false);
     }
   }
 
@@ -126,6 +132,6 @@ function useAI() {
     setIsPreview(isPreview);
   }
 
-  return { project, initProject, isPreview, updateAIOptions, setMode, setPrivate, sendMessage, aiResponses, updateLastResponse };
+  return { project, initProject, isPreview, updateAIOptions, setMode, setPrivate, sendMessage, aiResponses, updateLastResponse, isStreaming, setIsStreaming };
 }
 export default useAI;

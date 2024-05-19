@@ -1,5 +1,6 @@
 
 'use client'
+import clsx from 'clsx';
 import React, { use, useEffect, useState } from 'react';
 /*
 const transformCode = async (code: string) => {
@@ -10,6 +11,8 @@ const transformCode = async (code: string) => {
       parser: {
         syntax: 'typescript',
         tsx: true,
+                <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900">
+
         dynamicImport: true,
       },
       transform: {
@@ -26,10 +29,13 @@ const transformCode = async (code: string) => {
 
 interface LivePreviewProps extends React.HTMLAttributes<HTMLIFrameElement> {
   code: string
+  loading: boolean
 }
-const LivePreview: React.FC<LivePreviewProps> = ({ className, code, ...rest }) => {
+const LivePreview: React.FC<LivePreviewProps> = ({ className, loading, code, ...rest }) => {
   const [srcDoc, setSrcDoc] = useState('');
-
+  useEffect(() => {
+    console.log("loading", loading)
+  }, [loading])
   useEffect(() => {
 
     const initCode = async () => {
@@ -60,12 +66,25 @@ const LivePreview: React.FC<LivePreviewProps> = ({ className, code, ...rest }) =
   }, [code]);
 
   return (
-    <iframe
-      className={className}
-      srcDoc={srcDoc}
-      title="preview"
-      {...rest}
-    />
+    <div
+      className={clsx(className, "relative h-full w-full")}
+    >
+      <div className={clsx('absolute flex bg-white bg-opacity-20 bg-black h-full w-full items-center justify-center', !loading && 'hidden')}>
+        <div className="relative z-10">
+          <div className="animate-spin rounded-full h-32 w-32 bg-opacity-20 bg-black backdrop-blur-sm border-8 border-white border-opacity-50 border-t-transparent"></div>
+          <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center">
+            <span className="text-white-500 text-xl font-semibold">Loading...</span>
+          </div>
+        </div>
+      </div>
+      <iframe
+        className={"h-full w-full"}
+        srcDoc={srcDoc}
+        title="preview"
+        {...rest}
+      />
+    </div >
+
   );
 };
 

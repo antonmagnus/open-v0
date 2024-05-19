@@ -7,6 +7,8 @@ export interface AIStore {
   project: Project,
   setProject: (project: Project) => void
   isPreview: boolean,
+  isStreaming: boolean,
+  setIsStreaming: (streaming: boolean) => void
   setIsPreview: (isPreview: boolean) => void
   updateAIOptions: (options: Partial<AIOptions>) => void
   aiResponses?: CodeMessageResponse[]
@@ -49,6 +51,12 @@ const useAIStore = create<AIStore>((set,) => ({
     messages: [],
     mode: 'speed',
     isPrivate: false,
+  },
+  isStreaming: false,
+  setIsStreaming: (streaming: boolean) => {
+    set({
+      isStreaming: streaming,
+    });
   },
   setProject: (project: Project) => {
     const responses: CodeMessageResponse[] = [];

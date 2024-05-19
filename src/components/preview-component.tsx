@@ -49,8 +49,7 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
   const [showCode, setShowCode] = useState(false);
   const { screenSize, loading } = useScreenSize();
   const [allowSplit, setAllowSplit] = useState(true);
-  const { aiResponses } = useAI();
-
+  const { aiResponses, isStreaming, setIsStreaming } = useAI();
   const toggleCode = () => {
     console.log("Toggle code")
     setShowCode(!showCode);
@@ -87,6 +86,7 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
       return;
 
     try {
+      setIsStreaming(true);
       const res = await fetch('https://rollups-b3tslor6ta-uc.a.run.app', {
         method: 'POST',
         headers: {
@@ -99,6 +99,9 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
     }
     catch (err: any) {
       console.error('Error fetching preview code:', err);
+    }
+    finally {
+      setIsStreaming(false);
     }
 
   }, [editorValue], 1000);
@@ -128,11 +131,11 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
             cursor="col-resize"
           >
 
-            <LivePreview className="w-full rounded-sm" code={previewCode || ''} />
+            <LivePreview className="w-full rounded-sm" code={previewCode || ''} loading={isStreaming} />
             {showCode && <CodeEditor className={clsx(!showCode && "hidden")} code={editorValue || ''} setCode={(v: any) => setEditorValue(v || '')} />}
           </Split>
 
-          : <LivePreview className="w-full h-full p-2 rounded-sm" code={previewCode || ''} />
+          : <LivePreview className="w-full h-full p-2 rounded-sm" code={previewCode || ''} loading={isStreaming} />
         }
 
       </div>
@@ -145,7 +148,7 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
         <PreviewToolbar toggleCode={toggleCode} shareCode={shareCode} copyCode={copyCode} saveCode={saveCode} />
         {showCode ?
           <CodeEditor className="h-full w-full" code={editorValue || ''} setCode={(v: any) => setEditorValue(v || '')} />
-          : <LivePreview className="w-full h-full p-2 rounded-sm" code={previewCode || ''} />
+          : <LivePreview className="w-full h-full p-2 rounded-sm" code={previewCode || ''} loading={isStreaming} />
         }
       </div >
     )
