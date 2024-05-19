@@ -6,19 +6,17 @@ import clsx from 'clsx';
 import { Button } from './ui/button';
 
 interface CodeEditorProps extends HTMLAttributes<HTMLDivElement> {
-  defaultValue?: string;
-  onChange: (value: any) => void;
+  code: string;
+  setCode: (value: string) => void;
 }
-const CodeEditor: React.FC<CodeEditorProps> = ({ onChange, className, defaultValue }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ code, setCode, className }) => {
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     // Handle the editor's mount event if needed
   };
-  const [code, setCode] = useState(defaultValue || '');
-  const { aiResponses, updateLastResponse, isPreview } = useAI()
+  const { updateLastResponse, isPreview } = useAI()
 
   const handleEditorChange = (value: any) => {
     setCode(value || '');
-    onChange(value);
   }
   const saveCode = () => {
     // Save the code to the database
@@ -31,7 +29,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onChange, className, defaultVal
       <Editor
         height="100%"
         defaultLanguage="javascript"
-        defaultValue={defaultValue}
+        defaultValue={code}
         value={code}
         onMount={handleEditorDidMount}
         theme="vs-dark"

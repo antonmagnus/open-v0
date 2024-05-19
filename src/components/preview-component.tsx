@@ -129,7 +129,7 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
           >
 
             <LivePreview className="w-full rounded-sm" code={previewCode || ''} />
-            {showCode && <CodeEditor className={clsx(!showCode && "hidden")} defaultValue={editorValue} onChange={(v: any) => setEditorValue(v || '')} />}
+            {showCode && <CodeEditor className={clsx(!showCode && "hidden")} code={editorValue || ''} setCode={(v: any) => setEditorValue(v || '')} />}
           </Split>
 
           : <LivePreview className="w-full h-full p-2 rounded-sm" code={previewCode || ''} />
@@ -144,7 +144,7 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
       <div className={clsx(className, "flex flex-col h-full w-screen")}>
         <PreviewToolbar toggleCode={toggleCode} shareCode={shareCode} copyCode={copyCode} saveCode={saveCode} />
         {showCode ?
-          <CodeEditor className="h-full w-full" defaultValue={editorValue} onChange={(v: any) => setEditorValue(v || '')} />
+          <CodeEditor className="h-full w-full" code={editorValue || ''} setCode={(v: any) => setEditorValue(v || '')} />
           : <LivePreview className="w-full h-full p-2 rounded-sm" code={previewCode || ''} />
         }
       </div >
