@@ -1,6 +1,16 @@
 import { Button } from "@/components/ui/button"
 import { TooltipTrigger, TooltipContent, Tooltip, TooltipProvider } from "@/components/ui/tooltip"
-import { HTMLAttributes } from "react"
+import { HTMLAttributes, useState, useCallback, useTransition } from "react"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog"
+import { IconSpinner, IconUsers } from "./ui/icons"
+import clsx from "clsx"
+import Link from "next/link"
+import { Project } from "@/lib/model"
+import toast from "react-hot-toast"
+import useAI from "@/lib/hooks/use-ai"
+import { badgeVariants } from "./ui/badge"
+import { shareProject } from "@/app/actions/projects"
+import { formatDate } from "@/lib/utils"
 
 interface ToolbarProps extends HTMLAttributes<HTMLDivElement> {
   toggleCode: () => void
@@ -12,6 +22,32 @@ interface ToolbarProps extends HTMLAttributes<HTMLDivElement> {
 
 export function PreviewToolbar(toolbarProps: ToolbarProps) {
   const { toggleCode, shareCode, copyCode, saveCode } = toolbarProps
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
+  const [isSharePending, startShareTransition] = useTransition()
+
+  const { project } = useAI()
+  const copyShareLink = useCallback(async (project: Project) => {
+    if (!project.sharePath) {
+      return toast.error('Could not copy share link to clipboard')
+    }
+
+    const url = new URL(window.location.href)
+    url.pathname = project.sharePath
+    navigator.clipboard.writeText(url.toString())
+    setShareDialogOpen(false)
+    toast.success('Share link copied to clipboard', {
+      style: {
+        borderRadius: '10px',
+        background: '#333',
+        color: '#fff',
+        fontSize: '14px'
+      },
+      iconTheme: {
+        primary: 'white',
+        secondary: 'black'
+      }
+    })
+  }, [])
 
   return (
     <div className="flex justify-end items-center gap-2 p-2 border border-gray-200 dark:border-gray-800">
@@ -29,7 +65,7 @@ export function PreviewToolbar(toolbarProps: ToolbarProps) {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button className="rounded-full" size="icon" variant="ghost"
-              onClick={shareCode}
+              onClick={() => setShareDialogOpen(true)}
             >
               <ShareIcon className="h-4 w-4" />
               <span className="sr-only">Share code</span>
@@ -60,6 +96,67 @@ export function PreviewToolbar(toolbarProps: ToolbarProps) {
           <TooltipContent>Save code</TooltipContent>
         </Tooltip>
       </TooltipProvider>
+      {/* Share dialog       */}
+
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share link to project</DialogTitle>
+            <DialogDescription>
+              Anyone with the URL will be able to view the shared project.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1 rounded-md border p-4 text-sm">
+            <div className="font-medium">{project.title}</div>
+            <div className="text-muted-foreground">
+              {formatDate(project.createdAt)} · {project.messages.length} messages
+            </div>
+          </div>
+          <DialogFooter className="items-center">
+            {project.sharePath && (
+              <Link
+                href={project.sharePath}
+                className={clsx(
+                  badgeVariants({ variant: 'secondary' }),
+                  'mr-auto'
+                )}
+                target="_blank"
+              >
+                <IconUsers className="mr-2" />
+                {project.sharePath}
+              </Link>
+            )}
+            <Button
+              disabled={isSharePending}
+              onClick={() => {
+                startShareTransition(async () => {
+                  if (project.sharePath) {
+                    await new Promise(resolve => setTimeout(resolve, 500))
+                    copyShareLink(project)
+                    return
+                  }
+                  const result = await shareProject(project)
+                  if (result && 'error' in result) {
+                    toast.error(result.error)
+                    return
+                  }
+
+                  copyShareLink(result)
+                })
+              }}
+            >
+              {isSharePending ? (
+                <>
+                  <IconSpinner className="mr-2 animate-spin" />
+                  Copying...
+                </>
+              ) : (
+                <>Copy link</>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
