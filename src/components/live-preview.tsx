@@ -33,9 +33,7 @@ interface LivePreviewProps extends React.HTMLAttributes<HTMLIFrameElement> {
 }
 const LivePreview: React.FC<LivePreviewProps> = ({ className, loading, code, ...rest }) => {
   const [srcDoc, setSrcDoc] = useState('');
-  useEffect(() => {
-    console.log("loading", loading)
-  }, [loading])
+
   useEffect(() => {
 
     const initCode = async () => {

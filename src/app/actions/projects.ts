@@ -92,7 +92,6 @@ export async function clearProjects() {
 
 export async function getSharedProject(id: string) {
   const project = await kv.hgetall<Project>(`project:${id}`)
-  console.log('project', project)
   if (!project || !project.sharePath) {
     return null
   }
@@ -102,8 +101,6 @@ export async function getSharedProject(id: string) {
 
 export async function shareProject(project: Project) {
   const session = await getSession()
-  console.log('session', session)
-  console.log('project', project)
   if (!session?.user?.id || session.user.id != project.userId) {
     return {
       error: 'Unauthorized'
