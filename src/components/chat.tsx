@@ -22,12 +22,12 @@ const tryGetDescription = (jsonString: string): string => {
 }
 
 export function Chat({ className, id }: ChatProps) {
-  const { aiMessages, isPreview } = useAI()
+  const { project, isPreview } = useAI()
   return (
     <div className={clsx(className, "h-full overflow-y-scroll max-w-2xl")}>
       <div className={clsx("w-full h-full overflow-y-scroll max-w-2xl")}>
         <div className="mt-4 h-full p-6 space-y-4">
-          {aiMessages?.map((msg, i) => (
+          {project.messages?.map((msg, i) => (
             <div key={i} className="flex space-4">
               {msg.role === "user" ?
                 <div className="flex text-accent-foreground items-center space-x-4">

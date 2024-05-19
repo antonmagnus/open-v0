@@ -1,14 +1,14 @@
 import { create } from 'zustand';
-import { AIOptions, CodeMessageResponse, SnackbarOptions } from '../model';
+import { AIOptions, CodeMessageResponse, Project, SnackbarOptions } from '../model';
 import { MessageParam } from './use-ai';
 import { nanoid } from 'ai';
 
 export interface AIStore {
+  project: Project,
+  setProject: (project: Project) => void
   isPreview: boolean,
   setIsPreview: (isPreview: boolean) => void
-  aiOptions: AIOptions
-  setAIOptions: (options: AIOptions) => void
-  aiMessages?: MessageParam[] | []
+  updateAIOptions: (options: Partial<AIOptions>) => void
   aiResponses?: CodeMessageResponse[]
   setAIMessages: (messages: MessageParam[]) => void
   appendAIMessage: (message: MessageParam) => void
@@ -37,23 +37,50 @@ const assistantMessageToCodeMessageResponse = (message: MessageParam): CodeMessa
  * A hook to subscribe to the store. Look at https://github.com/pmndrs/zustand for more
  * documentation
  */
-const useAIStore = create<AIStore>((set) => ({
+const useAIStore = create<AIStore>((set,) => ({
   isPreview: false,
-  aiMessages: [],
   aiResponses: [],
-  aiOptions: {
+  project: {
     id: nanoid(),
+    title: 'Untitled Project',
+    createdAt: new Date(),
+    userId: '',
+    path: '',
+    messages: [],
     mode: 'speed',
     isPrivate: false,
   },
+  setProject: (project: Project) => {
+    const responses: CodeMessageResponse[] = [];
+    for (const message of project.messages) {
+      if (message.role === 'assistant') {
+        const mes = assistantMessageToCodeMessageResponse(message)
+        responses.push(mes);
+      }
+    }
+    set({
+      project,
+      aiResponses: responses,
+    });
+  },
+
   setIsPreview: (isPreview: boolean) => {
     set({
       isPreview,
     });
   },
-  setAIOptions: (aiOptions: AIOptions) => {
-    set({
-      aiOptions,
+
+  updateAIOptions: (aiOptions: Partial<AIOptions>) => {
+    set((state: AIStore) => {
+      const mode = aiOptions.mode || state.project.mode;
+      const isPrivate = aiOptions.isPrivate || state.project.isPrivate;
+      return {
+        project: {
+          ...state.project,
+          mode,
+          isPrivate,
+        },
+      };
     });
   },
 
@@ -65,9 +92,12 @@ const useAIStore = create<AIStore>((set) => ({
         responses.push(mes);
       }
     }
-    set(() => {
+    set((state: AIStore) => {
       return {
-        aiMessages: messages,
+        project: {
+          ...state.project,
+          messages,
+        },
         aiResponses: responses,
       };
     });
@@ -75,10 +105,14 @@ const useAIStore = create<AIStore>((set) => ({
   appendAIMessage: (message: MessageParam) => {
     set((state: AIStore) => {
       return {
-        aiMessages: [...state.aiMessages || [], message],
+        project: {
+          ...state.project,
+          messages: [...state.project.messages || [], message],
+        },
       };
     });
   },
+
   appendAIResponse: (response: CodeMessageResponse) => {
     set((state: AIStore) => {
       return {
@@ -99,30 +133,36 @@ const useAIStore = create<AIStore>((set) => ({
   },
   updateLastAIMessage: (content: string) => {
     set((state: AIStore) => {
-      const messages = [...state.aiMessages || []]; // Create a new array to ensure immutability
+      const messages = [...state.project.messages || []]; // Create a new array to ensure immutability
       if (messages.length > 0) {
         const lastMessage = { ...messages[messages.length - 1] }; // Clone the last message
         lastMessage.content = content; // Update the content
         messages[messages.length - 1] = lastMessage; // Replace the last message with the updated one
       }
       return {
-        aiMessages: messages,
+        project: {
+          ...state.project,
+          messages,
+        },
       };
     });
   },
   appendChunkToLastAIMessage: (chunk: string) => {
     set((state: AIStore) => {
-      if (!state.aiMessages) {
+      if (!state.project.messages || state.project.messages.length === 0) {
         return state;
       }
-      const messages = [...state.aiMessages || []];
+      const messages = [...state.project.messages || []];
       if (messages.length > 0) {
         const lastMessage = messages[messages.length - 1];
         lastMessage.content += chunk;
         messages[messages.length - 1] = { ...lastMessage };
       }
       return {
-        aiMessages: messages,
+        project: {
+          ...state.project,
+          messages,
+        },
       };
     });
   },

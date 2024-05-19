@@ -1,12 +1,11 @@
 'use client'
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
-import { AIOptions, CodeMessageResponse, PostMessages } from '../model';
+import { AIOptions, CodeMessageResponse, PostMessages, Project } from '../model';
 import { useShallow } from 'zustand/react/shallow'
 import { useEffect, useRef } from 'react';
 import useAIStore, { AIStore } from './useAIStore';
 import { generate } from '../../app/actions/stream'
 import { readStreamableValue } from 'ai/rsc';
-import { auth } from '@/auth';
 //import { useSession } from 'next-auth/react';
 export type MessageParam = ChatCompletionMessageParam
 
@@ -43,12 +42,12 @@ const testResponseChunks: string[] = [
 function useAI() {
 
 
-  const [aiMessages, aiResponses, aiOptions, setAIOptions, appendAIMessage, appendChunkToLastAIMessage, updateLastAIMessage, appendLastAIResponse, updateLastAIResponse, setAIMessages, isPreview, setIsPreview] = useAIStore(
+  const [project, setProject, aiResponses, updateAIOptions, appendAIMessage, appendChunkToLastAIMessage, updateLastAIMessage, appendLastAIResponse, updateLastAIResponse, setAIMessages, isPreview, setIsPreview] = useAIStore(
     useShallow((state: AIStore) => [
-      state.aiMessages,
+      state.project,
+      state.setProject,
       state.aiResponses,
-      state.aiOptions,
-      state.setAIOptions,
+      state.updateAIOptions,
       state.appendAIMessage,
       state.appendChunkToLastAIMessage,
       state.updateLastAIMessage,
@@ -60,25 +59,24 @@ function useAI() {
     ]),
   )
   //const session = useSession()
-  const aiMessagesRef = useRef(aiMessages);
-  aiMessagesRef.current = aiMessages;
+  const aiMessagesRef = useRef(project.messages);
+  aiMessagesRef.current = project.messages;
 
   useEffect(() => {
-    aiMessagesRef.current = aiMessages; // Update ref whenever aiMessages changes
-  }, [aiMessages]);
+    aiMessagesRef.current = project.messages; // Update ref whenever aiMessages changes
+  }, [project.messages]);
 
 
   const sendMessage = async (message: MessageParam) => {
     // sends a message to the server
     // gets the code appended
-    if (!aiOptions || isPreview) {
+    if (!project || isPreview) {
       return;
     }
     appendAIMessage(message);
 
     const sendMessage: PostMessages = {
-      messages: useAIStore.getState().aiMessages || [],
-      aiOpitons: aiOptions,
+      project: useAIStore.getState().project,
     };
     try {
       generate(sendMessage).then(async (res) => {
@@ -106,11 +104,11 @@ function useAI() {
   }
 
   const setMode = (mode: "quality" | "speed") => {
-    setAIOptions({ ...aiOptions, mode });
+    updateAIOptions({ mode });
   }
 
   const setPrivate = (isPrivate: boolean) => {
-    setAIOptions({ ...aiOptions, isPrivate });
+    updateAIOptions({ isPrivate });
   }
 
   const updateLastResponse = (content: string) => {
@@ -123,12 +121,11 @@ function useAI() {
     updateLastAIResponse({ code: content, description: desc });
   }
 
-  const initProject = (aiOptions: AIOptions, isPreview: boolean, aiMessages: ChatCompletionMessageParam[]) => {
-    setAIOptions(aiOptions);
-    setAIMessages(aiMessages);
+  const initProject = (project: Project, isPreview: boolean) => {
+    setProject(project);
     setIsPreview(isPreview);
   }
 
-  return { initProject, isPreview, setAIOptions, setMode, setPrivate, sendMessage, aiMessages, aiResponses, updateLastResponse };
+  return { project, initProject, isPreview, updateAIOptions, setMode, setPrivate, sendMessage, aiResponses, updateLastResponse };
 }
 export default useAI;

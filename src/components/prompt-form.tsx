@@ -2,11 +2,8 @@
 import { Button } from "@/components/ui/button"
 import useAI from "@/lib/hooks/use-ai"
 import { useEnterSubmit } from "@/lib/hooks/use-enter-submit"
-import { CodeMessageResponse } from "@/lib/model"
 import clsx from "clsx"
 import { HTMLAttributes, JSX, SVGProps, useState } from "react"
-import { IconOpenAI, IconUser } from '@/components/ui/icons'
-import { auth } from "@/auth"
 
 interface PromptProps extends HTMLAttributes<HTMLDivElement> {
   id: string
@@ -20,7 +17,7 @@ export function PromptForm({ className, id, showPrivate }: PromptProps) {
   const [isPrivate, setIsPrivate] = useState<boolean>(false)
   const [quality, setQuality] = useState<boolean>(false)
   const [speed, setSpeed] = useState<boolean>(true)
-  const { sendMessage, setMode, setPrivate, aiMessages } = useAI()
+  const { sendMessage, setMode, setPrivate } = useAI()
 
   const toggleQuality = () => {
     setQuality(true)

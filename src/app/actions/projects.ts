@@ -92,7 +92,7 @@ export async function clearProjects() {
 
 export async function getSharedProject(id: string) {
   const project = await kv.hgetall<Project>(`project:${id}`)
-
+  console.log('project', project)
   if (!project || !project.sharePath) {
     return null
   }

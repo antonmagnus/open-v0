@@ -23,13 +23,19 @@ export default function AppPage({ className, project, preview }: AppPageProps) {
   const { initProject } = useAI()
   useEffect(() => {
     if (project) {
-      initProject(project.aiOptions, preview, project.messages)
+      initProject(project, preview)
     } else {
       initProject({
-        id,
+        id: id,
+        title: 'Untitled',
+        description: '',
+        messages: [],
+        userId: '',
+        createdAt: new Date(),
+        path: `/project/${id}`,
         mode: 'speed',
         isPrivate: false,
-      }, preview, [])
+      }, preview)
     }
   }, [project])
   return (

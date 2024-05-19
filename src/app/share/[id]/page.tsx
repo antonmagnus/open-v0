@@ -25,8 +25,8 @@ export async function generateMetadata({
 }
 
 export default async function SharePage({ params }: SharePageProps) {
+  console.log(params)
   const project = await getSharedProject(params.id)
-
   if (!project || !project?.sharePath) {
     notFound()
   }

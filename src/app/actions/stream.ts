@@ -105,9 +105,9 @@ async function storeMessageCompletion(projectId: string, completion: string, mes
 
 export async function generate(input: PostMessages) {
   'use server'
-  const projectId = input.aiOpitons.id
-  const messages = input.messages
-  const aiOptions = input.aiOpitons
+  const projectId = input.project.id
+  const messages = input.project.messages
+  const aiOptions = { mode: input.project.mode, isPrivate: input.project.isPrivate }
   let systemPromptMessage: string
   const session = await getSession()
   const userId = session?.user?.id

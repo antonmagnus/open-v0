@@ -26,7 +26,7 @@ export async function generateMetadata({
     return {}
   }
 
-  const project = await getProject(params.id, session.user.id)
+  const project = await getProject(params.id, session?.user?.id)
   return {
     title: project?.title.toString().slice(0, 50) ?? 'Project'
   }
@@ -38,7 +38,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     redirect(`/sign-in?next=/project/${params.id}`)
   }
 
-  const project: Project | null = await getProject(params.id, session.user.id)
+
+  const project: Project | null = await getProject(params.id, session?.user?.id)
   if (!project) {
     notFound()
   }
