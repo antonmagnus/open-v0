@@ -22,7 +22,7 @@ const tryGetDescription = (jsonString: string): string => {
 }
 
 export function Chat({ className, id }: ChatProps) {
-  const { aiMessages } = useAI()
+  const { aiMessages, isPreview } = useAI()
   return (
     <div className={clsx(className, "h-full overflow-y-scroll max-w-2xl")}>
       <div className={clsx("w-full h-full overflow-y-scroll max-w-2xl")}>
@@ -44,7 +44,7 @@ export function Chat({ className, id }: ChatProps) {
           ))}
         </div>
       </div>
-      <PromptForm className='sticky p-4 inset-x-0 bottom-0' id={id} showPrivate={false} />
+      <PromptForm className={clsx('sticky p-4 inset-x-0 bottom-0', isPreview && 'hidden')} id={id} showPrivate={false} />
     </div>
   );
 };

@@ -46,6 +46,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     notFound()
   }
 
-  return <AppPage project={project} />
+  return <AppPage project={project} preview={false} />
 
 }

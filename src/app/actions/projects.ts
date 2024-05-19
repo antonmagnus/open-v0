@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { kv } from '@vercel/kv'
-
+import { getSession } from '@/app/actions/serverauth'
 import { auth } from '@/auth'
 import { Project } from '@/lib/model'
 
@@ -101,9 +101,10 @@ export async function getSharedProject(id: string) {
 }
 
 export async function shareProject(project: Project) {
-  const session = await auth()
-
-  if (!session?.user?.id || session.user.id !== project.userId) {
+  const session = await getSession()
+  console.log('session', session)
+  console.log('project', project)
+  if (!session?.user?.id || session.user.id != project.userId) {
     return {
       error: 'Unauthorized'
     }

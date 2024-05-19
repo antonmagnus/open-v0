@@ -42,7 +42,6 @@ export async function Header() {
           </Sidebar>
         ) : (
           <Link href="/" target="_blank" rel="nofollow">
-            <IconMagnolia className="mr-2 h-6 w-6 dark:hidden" inverted />
             <IconMagnolia className="mr-2 hidden h-6 w-6 dark:block" />
           </Link>
         )}

@@ -4,6 +4,8 @@ import { MessageParam } from './use-ai';
 import { nanoid } from 'ai';
 
 export interface AIStore {
+  isPreview: boolean,
+  setIsPreview: (isPreview: boolean) => void
   aiOptions: AIOptions
   setAIOptions: (options: AIOptions) => void
   aiMessages?: MessageParam[] | []
@@ -36,6 +38,7 @@ const assistantMessageToCodeMessageResponse = (message: MessageParam): CodeMessa
  * documentation
  */
 const useAIStore = create<AIStore>((set) => ({
+  isPreview: false,
   aiMessages: [],
   aiResponses: [],
   aiOptions: {
@@ -43,7 +46,11 @@ const useAIStore = create<AIStore>((set) => ({
     mode: 'speed',
     isPrivate: false,
   },
-
+  setIsPreview: (isPreview: boolean) => {
+    set({
+      isPreview,
+    });
+  },
   setAIOptions: (aiOptions: AIOptions) => {
     set({
       aiOptions,

@@ -58,6 +58,8 @@ export function SidebarActions({
 
 
   const copyShareLink = React.useCallback(async (project: Project) => {
+    console.log('copyShareLink')
+    console.log('project', project)
     if (!project.sharePath) {
       return toast.error('Could not copy share link to clipboard')
     }
@@ -152,9 +154,7 @@ export function SidebarActions({
                     copyShareLink(project)
                     return
                   }
-
                   const result = await shareProject(project)
-
                   if (result && 'error' in result) {
                     toast.error(result.error)
                     return

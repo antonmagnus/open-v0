@@ -36,7 +36,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onChange, className, defaultVal
     // Handle the editor's mount event if needed
   };
   const [code, setCode] = useState(defaultValue || '');
-  const { aiResponses, updateLastResponse } = useAI()
+  const { aiResponses, updateLastResponse, isPreview } = useAI()
 
   const handleEditorChange = (value: any) => {
     setCode(value || '');
@@ -67,9 +67,10 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onChange, className, defaultVal
         theme="vs-dark"
         className="flex-1 rounded-sm"
         onChange={(v) => handleEditorChange(v)}
+
       />
       {/* code toolbar*/}
-      <div className='flex flex-row space-x-4 bg-muted/50 justify-end p-4 border-r'>
+      <div className={clsx('flex flex-row space-x-4 bg-muted/50 justify-end p-4 border-r', isPreview && 'hidden')}>
         <Button className="p-2 border rounded-md">Cancel</Button>
         <Button onClick={saveCode} className="p-2 border rounded-md">Save changes</Button>
       </div>

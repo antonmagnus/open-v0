@@ -43,7 +43,7 @@ const testResponseChunks: string[] = [
 function useAI() {
 
 
-  const [aiMessages, aiResponses, aiOptions, setAIOptions, appendAIMessage, appendChunkToLastAIMessage, updateLastAIMessage, appendLastAIResponse, updateLastAIResponse, setAIMessages] = useAIStore(
+  const [aiMessages, aiResponses, aiOptions, setAIOptions, appendAIMessage, appendChunkToLastAIMessage, updateLastAIMessage, appendLastAIResponse, updateLastAIResponse, setAIMessages, isPreview, setIsPreview] = useAIStore(
     useShallow((state: AIStore) => [
       state.aiMessages,
       state.aiResponses,
@@ -54,7 +54,9 @@ function useAI() {
       state.updateLastAIMessage,
       state.appendAIResponse,
       state.updateLastAIResponse,
-      state.setAIMessages
+      state.setAIMessages,
+      state.isPreview,
+      state.setIsPreview,
     ]),
   )
   //const session = useSession()
@@ -69,7 +71,7 @@ function useAI() {
   const sendMessage = async (message: MessageParam) => {
     // sends a message to the server
     // gets the code appended
-    if (!aiOptions) {
+    if (!aiOptions || isPreview) {
       return;
     }
     appendAIMessage(message);
@@ -121,11 +123,12 @@ function useAI() {
     updateLastAIResponse({ code: content, description: desc });
   }
 
-  const initProject = (aiOptions: AIOptions, aiMessages: ChatCompletionMessageParam[]) => {
+  const initProject = (aiOptions: AIOptions, isPreview: boolean, aiMessages: ChatCompletionMessageParam[]) => {
     setAIOptions(aiOptions);
     setAIMessages(aiMessages);
+    setIsPreview(isPreview);
   }
 
-  return { initProject, setAIOptions, setMode, setPrivate, sendMessage, aiMessages, aiResponses, updateLastResponse };
+  return { initProject, isPreview, setAIOptions, setMode, setPrivate, sendMessage, aiMessages, aiResponses, updateLastResponse };
 }
 export default useAI;

@@ -9,10 +9,11 @@ import { HTMLAttributes, useEffect } from "react";
 import { Project } from "@/lib/model";
 import useAI from "@/lib/hooks/use-ai";
 interface AppPageProps extends HTMLAttributes<HTMLDivElement> {
-  project?: Project
+  project?: Project,
+  preview: boolean
 }
 //export function Chat({ className, id }: ChatProps)
-export default function AppPage({ className, project }: AppPageProps) {
+export default function AppPage({ className, project, preview }: AppPageProps) {
 
   //const session = await auth()
   //if (!session) return <div>Not authenticated</div>
@@ -22,13 +23,13 @@ export default function AppPage({ className, project }: AppPageProps) {
   const { initProject } = useAI()
   useEffect(() => {
     if (project) {
-      initProject(project.aiOptions, project.messages)
+      initProject(project.aiOptions, preview, project.messages)
     } else {
       initProject({
         id,
         mode: 'speed',
         isPrivate: false,
-      }, [])
+      }, preview, [])
     }
   }, [project])
   return (
@@ -43,7 +44,7 @@ export default function AppPage({ className, project }: AppPageProps) {
           {/* <div className="m-2 absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-green-200 w-[50%] h-32 rounded">
             test
           </div>  */}
-          <PromptForm className={clsx("bg-muted/50 border backdrop-blur-xl bg-opacity-70 absolute p-4 bottom-4 left-1/2 transform -translate-x-1/2 md:w-[50%] sm:w-[70%] w-full rounded-xl ", showConversation && "hidden")} id={id} showPrivate={false} />
+          <PromptForm className={clsx("bg-muted/50 border backdrop-blur-xl bg-opacity-70 absolute p-4 bottom-4 left-1/2 transform -translate-x-1/2 md:w-[50%] sm:w-[70%] w-full rounded-xl ", (showConversation || preview) && "hidden")} id={id} showPrivate={false} />
         </div>
       </div>
     </div>

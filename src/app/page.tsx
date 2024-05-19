@@ -12,7 +12,7 @@ export default async function Home() {
   return (
     <SessionProvider session={session}>
       <div className="h-full">
-        <AppPage />
+        <AppPage preview={false} />
       </div>
     </SessionProvider>
 
