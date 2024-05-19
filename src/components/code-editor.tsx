@@ -9,28 +9,6 @@ interface CodeEditorProps extends HTMLAttributes<HTMLDivElement> {
   defaultValue?: string;
   onChange: (value: any) => void;
 }
-function formatJSXCode(code: string) {
-  if (!code) return code;
-  // Replace escaped newlines within strings
-  code = code.replace(/\\n/g, '\n');
-
-  // Handle the JSX specific attribute formatting
-  code = code.replace(/<([a-z]+)([^>]*)\\>/gi, (match, tagName, attributes) => {
-    // Normalize attribute strings
-    attributes = attributes.replace(/"\n\s*/g, '" ').replace(/\s*\n\s*/g, ' ');
-    return `<${tagName}${attributes}>`;
-  });
-
-  // Replace escaped double quotes
-  code = code.replace(/\\"/g, '"');
-
-  // Replace escaped backslashes
-  code = code.replace(/\\$/gm, '');
-
-  // Remove invalid comments
-  code = code.replaceAll(/<!--[\s\S]*?-->/g, '')
-  return code;
-}
 const CodeEditor: React.FC<CodeEditorProps> = ({ onChange, className, defaultValue }) => {
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     // Handle the editor's mount event if needed
@@ -47,14 +25,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onChange, className, defaultVal
     updateLastResponse(code)
   }
 
-  useEffect(() => {
-    if (aiResponses && aiResponses.length > 0) {
-      const lastMessage = aiResponses[aiResponses.length - 1]
-      const formattedCode = formatJSXCode(lastMessage.code);
-      setCode(formattedCode)
-      handleEditorChange(formattedCode)
-    }
-  }, [aiResponses])
 
   return (
     <div className={clsx(className, "flex flex-col w-full")}>
