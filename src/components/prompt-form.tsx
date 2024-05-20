@@ -3,17 +3,18 @@ import { Button } from "@/components/ui/button"
 import useAI from "@/lib/hooks/use-ai"
 import { useEnterSubmit } from "@/lib/hooks/use-enter-submit"
 import clsx from "clsx"
-import { HTMLAttributes, JSX, SVGProps, useState } from "react"
+import { HTMLAttributes, JSX, SVGProps, useEffect, useState } from "react"
 
 interface PromptProps extends HTMLAttributes<HTMLDivElement> {
   id: string
   showPrivate: boolean
+  input?: string
 }
 
 
-export function PromptForm({ className, id, showPrivate }: PromptProps) {
+export function PromptForm({ className, id, showPrivate, input }: PromptProps) {
   const { formRef, onKeyDown } = useEnterSubmit()
-  const [prompt, setPrompt] = useState<string>("")
+  const [prompt, setPrompt] = useState<string>(input || "")
   const [isPrivate, setIsPrivate] = useState<boolean>(false)
   const [quality, setQuality] = useState<boolean>(false)
   const [speed, setSpeed] = useState<boolean>(true)
@@ -34,6 +35,11 @@ export function PromptForm({ className, id, showPrivate }: PromptProps) {
     setIsPrivate(!isPrivate)
     setPrivate(!isPrivate)
   }
+
+  useEffect(() => {
+    setPrompt(input || "")
+  }, [input])
+
   const submitPrompt = (event: React.FormEvent) => {
 
     event.preventDefault();  // Prevent default form submit behavior

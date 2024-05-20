@@ -1,6 +1,6 @@
 'use client'
 
-import React, { HTMLAttributes } from 'react';
+import React, { HTMLAttributes, useEffect, useState } from 'react';
 import { IconOpenAI, IconUser } from './ui/icons';
 import clsx from 'clsx';
 import useAI from '@/lib/hooks/use-ai';
@@ -8,6 +8,7 @@ import { CodeMessageResponse } from '@/lib/model';
 import { PromptForm } from './prompt-form';
 interface ChatProps extends HTMLAttributes<HTMLDivElement> {
   id: string;
+  input?: string;
 }
 const tryGetDescription = (jsonString: string): string => {
   if (!jsonString || jsonString === "") {
@@ -21,8 +22,12 @@ const tryGetDescription = (jsonString: string): string => {
   }
 }
 
-export function Chat({ className, id }: ChatProps) {
+export function Chat({ className, id, input }: ChatProps) {
   const { project, isPreview } = useAI()
+  const [prompt, setPrompt] = useState<string>(input || "")
+  useEffect(() => {
+    setPrompt(input || "")
+  }, [input])
   return (
     <div className={clsx(className, "h-full overflow-y-scroll max-w-2xl")}>
       <div className={clsx("w-full h-full overflow-y-scroll max-w-2xl")}>
@@ -44,7 +49,7 @@ export function Chat({ className, id }: ChatProps) {
           ))}
         </div>
       </div>
-      <PromptForm className={clsx('sticky p-4 inset-x-0 bottom-0', isPreview && 'hidden')} id={id} showPrivate={false} />
+      <PromptForm className={clsx('sticky p-4 inset-x-0 bottom-0', isPreview && 'hidden')} id={id} showPrivate={false} input={prompt} />
     </div>
   );
 };
