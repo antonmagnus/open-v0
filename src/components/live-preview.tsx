@@ -30,9 +30,12 @@ const transformCode = async (code: string) => {
 interface LivePreviewProps extends React.HTMLAttributes<HTMLIFrameElement> {
   code: string
   loading: boolean
+  device: 'mobile' | 'desktop' | 'tablet'
 }
-const LivePreview: React.FC<LivePreviewProps> = ({ className, loading, code, ...rest }) => {
+const LivePreview: React.FC<LivePreviewProps> = ({ className, loading, code, device, ...rest }) => {
   const [srcDoc, setSrcDoc] = useState('');
+
+  const frameWidth = device === 'mobile' ? 'w-full sm:w-[375px]' : device === 'tablet' ? 'w-full sm:w-[768px]' : 'w-full'
 
   useEffect(() => {
 
@@ -65,7 +68,7 @@ const LivePreview: React.FC<LivePreviewProps> = ({ className, loading, code, ...
 
   return (
     <div
-      className={clsx(className, "relative h-full w-full")}
+      className={clsx(className, "relative h-full w-full flex items-center justify-center")}
     >
       <div className={clsx('absolute flex bg-white bg-opacity-20 bg-black h-full w-full items-center justify-center', !loading && 'hidden')}>
         <div className="relative z-10">
@@ -76,14 +79,13 @@ const LivePreview: React.FC<LivePreviewProps> = ({ className, loading, code, ...
         </div>
       </div>
       <iframe
-        className={"h-full w-full"}
+        className={clsx("h-full", frameWidth)}
         srcDoc={srcDoc}
         title="preview"
         {...rest}
       />
-    </div >
-
-  );
+    </div>
+  )
 };
 
 export default LivePreview;

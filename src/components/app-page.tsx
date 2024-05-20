@@ -50,7 +50,7 @@ export default function AppPage({ className, project, preview }: AppPageProps) {
           {/* <div className="m-2 absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-green-200 w-[50%] h-32 rounded">
             test
           </div>  */}
-          <PromptForm className={clsx("bg-muted/50 border backdrop-blur-xl bg-opacity-70 absolute p-4 bottom-4 left-1/2 transform -translate-x-1/2 md:w-[50%] sm:w-[70%] w-full rounded-xl ", (showConversation || preview) && "hidden")} id={id} showPrivate={false} />
+          <PromptForm className={clsx("bg-muted/50 border backdrop-blur-xl bg-opacity-70 sm:absolute p-4 bottom-4 sm:left-1/2 sm:transform sm:-translate-x-1/2 md:w-[50%] sm:w-[70%] w-full rounded-xl ", (showConversation || preview) && "hidden")} id={id} showPrivate={false} />
         </div>
       </div>
     </div>

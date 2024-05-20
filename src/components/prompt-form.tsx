@@ -53,9 +53,9 @@ export function PromptForm({ className, id, showPrivate }: PromptProps) {
     <>
 
       <form ref={formRef} onSubmit={(e) => submitPrompt(e)} className={clsx(className)}>
-        <div className="pb-6">
+        <div className="pb-4">
           <textarea
-            className="w-full min-h-12 px-4 py-2 rounded-md text-accent-foreground bg-muted/70 bg-opacity-70 backdrop-blur-xl placeholder-gray-400 border-gray-200 border focus:outline-none focus:border-gray-500 transition-all duration-200 ease-in-out"
+            className="w-full min-h-10 px-4 pt-2 rounded-md text-accent-foreground bg-muted/70 bg-opacity-70 backdrop-blur-xl placeholder-gray-400 border-gray-200 border focus:outline-none focus:border-gray-500 transition-all duration-200 ease-in-out"
             placeholder="Type here..."
             value={prompt}
             onKeyDown={onKeyDown}

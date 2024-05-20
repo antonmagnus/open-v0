@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { TooltipTrigger, TooltipContent, Tooltip, TooltipProvider } from "@/components/ui/tooltip"
 import { HTMLAttributes, useState, useCallback, useTransition } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog"
-import { IconSpinner, IconUsers } from "./ui/icons"
+import { IconLaptop, IconSmartphone, IconSpinner, IconTablet, IconUsers } from "./ui/icons"
 import clsx from "clsx"
 import Link from "next/link"
 import { Project } from "@/lib/model"
@@ -17,11 +17,14 @@ interface ToolbarProps extends HTMLAttributes<HTMLDivElement> {
   shareCode: () => void
   copyCode: () => void
   saveCode: () => void
+  toggleTabletView: () => void
+  toggleMobileView: () => void
+  toggleDesktopView: () => void
 }
 
 
 export function PreviewToolbar(toolbarProps: ToolbarProps) {
-  const { toggleCode, shareCode, copyCode, saveCode } = toolbarProps
+  const { toggleCode, shareCode, copyCode, saveCode, toggleDesktopView, toggleMobileView, toggleTabletView } = toolbarProps
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
   const [isSharePending, startShareTransition] = useTransition()
 
@@ -52,6 +55,40 @@ export function PreviewToolbar(toolbarProps: ToolbarProps) {
   return (
     <div className="flex justify-end items-center gap-2 p-2 border border-gray-200 dark:border-gray-800">
       <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button className="rounded-full" size="icon" variant="ghost"
+              onClick={toggleDesktopView}>
+              <IconLaptop className="h-4 w-4" />
+              <span className="sr-only">Preview Desktop View</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Preview Desktop View</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button className="rounded-full" size="icon" variant="ghost"
+              onClick={toggleTabletView}>
+              <IconTablet className="h-4 w-4" />
+              <span className="sr-only">Preview Tablet View</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Preview Tablet View</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button className="rounded-full" size="icon" variant="ghost"
+              onClick={toggleMobileView}>
+              <IconSmartphone className="h-4 w-4" />
+              <span className="sr-only">Preview Mobile View</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Preview Mobile View</TooltipContent>
+        </Tooltip>
+        <div
+          className="border-l border-gray-800 dark:border-gray-200 h-6"
+          aria-hidden="true"
+        />
         <Tooltip>
           <TooltipTrigger asChild>
             <Button className="rounded-full" size="icon" variant="ghost"

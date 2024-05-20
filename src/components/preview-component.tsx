@@ -50,6 +50,8 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
   const { screenSize, loading } = useScreenSize();
   const [allowSplit, setAllowSplit] = useState(true);
   const { aiResponses, isStreaming, setIsStreaming } = useAI();
+
+  const [device, setDevice] = useState<'mobile' | 'desktop' | 'tablet'>('desktop');
   const toggleCode = () => {
     console.log("Toggle code")
     setShowCode(!showCode);
@@ -62,6 +64,15 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
   }
   const saveCode = () => {
     console.log("Save code")
+  }
+  const toggleTabletView = () => {
+    setDevice('tablet');
+  }
+  const toggleMobileView = () => {
+    setDevice('mobile');
+  }
+  const toggleDesktopView = () => {
+    setDevice('desktop');
   }
 
   useEffect(() => {
@@ -110,7 +121,8 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
   if (allowSplit) {
     return (
       <div className={clsx(className, "flex flex-col h-full w-full")}>
-        <PreviewToolbar toggleCode={toggleCode} shareCode={shareCode} copyCode={copyCode} saveCode={saveCode} />
+        <PreviewToolbar toggleCode={toggleCode} shareCode={shareCode} copyCode={copyCode} saveCode={saveCode}
+          toggleDesktopView={toggleDesktopView} toggleMobileView={toggleMobileView} toggleTabletView={toggleTabletView} />
         {showCode ?
           <Split className={clsx("flex w-full h-full")}
             sizes={[50, 50]}
@@ -131,11 +143,11 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
             cursor="col-resize"
           >
 
-            <LivePreview className="w-full rounded-sm" code={previewCode || ''} loading={isStreaming} />
+            <LivePreview className="w-full rounded-sm" code={previewCode || ''} loading={isStreaming} device={device} />
             {showCode && <CodeEditor className={clsx(!showCode && "hidden")} code={editorValue || ''} setCode={(v: any) => setEditorValue(v || '')} />}
           </Split>
 
-          : <LivePreview className="w-full h-full p-2 rounded-sm" code={previewCode || ''} loading={isStreaming} />
+          : <LivePreview className={clsx("h-full p-2 rounded-sm")} code={previewCode || ''} loading={isStreaming} device={device} />
         }
 
       </div>
@@ -145,10 +157,11 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
   else {
     return (
       <div className={clsx(className, "flex flex-col h-full w-screen")}>
-        <PreviewToolbar toggleCode={toggleCode} shareCode={shareCode} copyCode={copyCode} saveCode={saveCode} />
+        <PreviewToolbar toggleCode={toggleCode} shareCode={shareCode} copyCode={copyCode} saveCode={saveCode}
+          toggleDesktopView={toggleDesktopView} toggleMobileView={toggleMobileView} toggleTabletView={toggleTabletView} />
         {showCode ?
           <CodeEditor className="h-full w-full" code={editorValue || ''} setCode={(v: any) => setEditorValue(v || '')} />
-          : <LivePreview className="w-full h-full p-2 rounded-sm" code={previewCode || ''} loading={isStreaming} />
+          : <LivePreview className="w-full h-full p-2 rounded-sm" code={previewCode || ''} loading={isStreaming} device={device} />
         }
       </div >
     )
