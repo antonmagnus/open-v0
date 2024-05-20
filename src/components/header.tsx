@@ -14,6 +14,7 @@ import { UserMenu } from '@/components/user-menu'
 
 import ShowCoversationButton from './conversation-button'
 import { auth } from '@/auth'
+import clsx from 'clsx'
 
 export async function Header() {
 
@@ -42,7 +43,7 @@ export async function Header() {
           </Sidebar>
         ) : (
           <Link href="/" target="_blank" rel="nofollow">
-            <IconMagnolia className="mr-2 hidden h-6 w-6 dark:block" />
+            <IconMagnolia className="mr-2 h-6 w-6" />
           </Link>
         )}
         <div className="flex items-center">
@@ -54,7 +55,7 @@ export async function Header() {
               <Link href="/sign-in?callbackUrl=/">Login</Link>
             </Button>
           )}
-          <ShowCoversationButton />
+          <ShowCoversationButton className={clsx(!session?.user && 'hidden')} />
         </div>
       </div>
     </header>

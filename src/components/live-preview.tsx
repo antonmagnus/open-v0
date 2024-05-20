@@ -79,7 +79,7 @@ const LivePreview: React.FC<LivePreviewProps> = ({ className, loading, code, dev
         </div>
       </div>
       <iframe
-        className={clsx("h-full", frameWidth)}
+        className={clsx("h-full border border-foreground", frameWidth)}
         srcDoc={srcDoc}
         title="preview"
         {...rest}
