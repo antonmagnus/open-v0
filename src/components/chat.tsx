@@ -1,27 +1,67 @@
 'use client'
 
 import React, { HTMLAttributes, useEffect, useState } from 'react';
-import { IconOpenAI, IconUser } from './ui/icons';
+import { IconUser } from './ui/icons';
 import clsx from 'clsx';
 import useAI from '@/lib/hooks/use-ai';
 import { CodeMessageResponse } from '@/lib/model';
 import { PromptForm } from './prompt-form';
+import remarkGfm from 'remark-gfm'
+import remarkMath from 'remark-math'
+import { MemoizedReactMarkdown } from '@/components/markdown'
+
 interface ChatProps extends HTMLAttributes<HTMLDivElement> {
   id: string;
   input?: string;
 }
-const tryGetDescription = (jsonString: string): string => {
+const tryGetContent = (jsonString: string): CodeMessageResponse => {
+  let retMessage: CodeMessageResponse = {
+    code: "",
+    description: "",
+    title: "",
+    plan: "",
+    version: "",
+  }
   if (!jsonString || jsonString === "") {
-    return ""
+    return retMessage
   }
   try {
     const message = JSON.parse(jsonString) as CodeMessageResponse
-    return message.description
+    return message
   } catch (e) {
-    return ""
+    return retMessage
   }
 }
 
+
+const AssistantMessage = ({ jsonString }: { jsonString: string }) => {
+  if (!jsonString) {
+    return <></>
+  }
+  const message = JSON.parse(jsonString) as CodeMessageResponse
+  const messageString = `
+  ---
+
+  ### ${message.title}
+
+  ###### ${message.description}
+
+  #### Plan: 
+  ${message.plan}
+  ---
+  `
+  return (
+    <div className="flex justify-start">
+      <MemoizedReactMarkdown
+        className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
+        remarkPlugins={[remarkGfm, remarkMath]}
+      >
+
+        {messageString}
+      </MemoizedReactMarkdown>
+    </div>
+  )
+}
 export function Chat({ className, id, input }: ChatProps) {
   const { project, isPreview } = useAI()
   const [prompt, setPrompt] = useState<string>(input || "")
@@ -36,14 +76,11 @@ export function Chat({ className, id, input }: ChatProps) {
             <div key={i} className="flex space-4">
               {msg.role === "user" ?
                 <div className="flex text-accent-foreground items-center space-x-4">
-                  <IconUser />
+                  <IconUser className='min-w-[24px] w-[24px] max-w-[24px]' />
                   <p>{msg.content as string}</p>
                 </div>
                 :
-                <div className="flex text-accent-foreground items-center space-x-4">
-                  <IconOpenAI />
-                  <p>{tryGetDescription(msg.content || '')}</p>
-                </div>
+                <AssistantMessage jsonString={msg.content as string} />
               }
             </div>
           ))}

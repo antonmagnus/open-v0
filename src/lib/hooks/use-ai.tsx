@@ -1,6 +1,6 @@
 'use client'
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
-import { AIOptions, CodeMessageResponse, PostMessages, Project } from '../model';
+import { AIOptions, CodeMessageResponse, LatestCodeMessageResponseVersion, PostMessages, Project } from '../model';
 import { useShallow } from 'zustand/react/shallow'
 import { useEffect, useRef, useState } from 'react';
 import useAIStore, { AIStore } from './useAIStore';
@@ -90,7 +90,7 @@ function useAI() {
             role: "assistant",
           };
           appendAIMessage(message);
-          appendLastAIResponse({ code: "", description: "" });
+          appendLastAIResponse({ code: "", description: "", title: "", version: LatestCodeMessageResponseVersion, plan: "" });
 
           // @ts-ignore
           for await (const partialObject of readStreamableValue(object)) {
@@ -122,9 +122,12 @@ function useAI() {
       return;
     }
     const desc = aiResponses[aiResponses.length - 1].description;
-    const newResponse = { code: content, description: desc };
+    const title = aiResponses[aiResponses.length - 1].title;
+    const plan = aiResponses[aiResponses.length - 1].plan;
+
+    const newResponse = { code: content, description: desc, title, version: LatestCodeMessageResponseVersion, plan };
     updateLastAIMessage(JSON.stringify(newResponse));
-    updateLastAIResponse({ code: content, description: desc });
+    updateLastAIResponse({ code: content, description: desc, title, version: LatestCodeMessageResponseVersion, plan });
   }
 
   const initProject = (project: Project, isPreview: boolean) => {

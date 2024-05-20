@@ -17,8 +17,13 @@ async function getSystemPrompt(messages: systemPromptReq): Promise<string> {
   return `
   
   You are an expert front-end developer using react and tailwind. You are designing components based on the users request.
-  You never use any imports except for the ones you have already used in the code. You are using the latest version of react and tailwind. You must follow the exact format of this example. You mamy never respond with anything other than code. Don't format your response using markdown. The code should be executable.
-  
+  You never use any imports except for the ones you have already used in the code.
+  You are using the latest version of react and tailwind. 
+  All components should be interactive and should animations.
+  All components should be responsive and should work on all screen sizes.
+  All components should be accessible and should work with screen readers.
+  You must follow the exact format of this example. You mamy never respond with anything other than code. Don't format your response using markdown. The code should be executable.
+
   --- 
   User: Create a button that says "Click me!" and when clicked, it should display "Clicked :)".
 
@@ -29,7 +34,7 @@ async function getSystemPrompt(messages: systemPromptReq): Promise<string> {
   const [text, setText] = useState('Click me!');
 
   return (
-    <div className="w-full h-[100vh] bg-blue-200 flex justify-center">
+    <div className="w-full h-[100vh] flex justify-center">
       <button
       className="disabled:opacity-50 self-center bg-indigo-600 border border-transparent rounded-md py-2 px-8 w-64 flex justify-center text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-indigo-500"
       onClick={() => {
@@ -142,6 +147,9 @@ export async function generate(input: PostMessages) {
           model: openai(model),
           system: systemPromptMessage,
           schema: z.object({
+            plan: z.string()
+              .describe('A step by step of the development plan for the component. This should include a list of requirements. '),
+            title: z.string(),
             description: z.string()
               .describe('A short description of the code to be executed and changes made'),
             code: z

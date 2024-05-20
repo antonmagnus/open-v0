@@ -5,10 +5,13 @@ import { MessageParam } from "./hooks/use-ai";
 export type PostMessages = {
   project: Project,
 }
-
+export const LatestCodeMessageResponseVersion = "1.0.0"
 export type CodeMessageResponse = {
   code: string,
+  plan?: string,
   description: string,
+  title?: string,
+  version: string,
 }
 
 export interface SnackbarOptions {
