@@ -32,7 +32,7 @@ export function EmptyScreen({ setInput }: Pick<UseChatHelpers, 'setInput'>) {
         </p>
         <p className='leading-normal text-muted-foreground'>
           The data  you enter is controlled by you and not used to train the AI.
-          However, don't enter any sensitive information.
+          However, don&apos;t enter any sensitive information.
           Please use your own judgement when using this tool.
           {'\n'}
         </p>
