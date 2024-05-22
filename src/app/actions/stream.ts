@@ -82,7 +82,7 @@ async function storeMessageCompletion(projectId: string, completion: string, mes
     return
   }
   const firstMessage = messages[0].content as string
-  const title = firstMessage.substring(0, 100)
+  const title = comp.title ?? firstMessage.substring(0, 100)
   const id = projectId ?? nanoid()
   const createdAt = Date.now()
   const path = `/project/${id}`
