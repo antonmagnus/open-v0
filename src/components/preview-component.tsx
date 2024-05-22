@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, HTMLAttributes, useEffect } from 'react';
+import React, { useState, HTMLAttributes, useEffect, useCallback } from 'react';
 import Split from 'react-split';
 import LivePreview from '@/components/live-preview';
 import useDelayEffect from '@/lib/hooks/useDelayEffect';
@@ -49,7 +49,7 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
   const [showCode, setShowCode] = useState(false);
   const { screenSize, loading } = useScreenSize();
   const [allowSplit, setAllowSplit] = useState(true);
-  const { aiResponses, isStreaming, setIsStreaming } = useAI();
+  const { project, aiResponses, isStreaming, setIsStreaming } = useAI();
 
   const [device, setDevice] = useState<'mobile' | 'desktop' | 'tablet'>('desktop');
   const toggleCode = () => {
@@ -59,9 +59,46 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
   const shareCode = () => {
     console.log("Share code")
   }
-  const copyCode = () => {
+
+  const copyCode = useCallback(async () => {
     console.log("Copy code")
-  }
+
+    const copyHeader = `
+    /* 
+      Component created using https://www.magnolia.dev.
+      Link: ${project.path}     
+    */
+    ${editorValue}
+    `
+    if (!editorValue) {
+      toast.error('No code to copy', {
+        style: {
+          borderRadius: '10px',
+          background: '#333',
+          color: '#fff',
+          fontSize: '14px'
+        },
+        iconTheme: {
+          primary: 'white',
+          secondary: 'black'
+        }
+      })
+      return;
+    }
+    navigator.clipboard.writeText(copyHeader)
+    toast.success('Code copied to clipboard', {
+      style: {
+        borderRadius: '10px',
+        background: '#333',
+        color: '#fff',
+        fontSize: '14px'
+      },
+      iconTheme: {
+        primary: 'white',
+        secondary: 'black'
+      }
+    })
+  }, [editorValue])
   const saveCode = () => {
     console.log("Save code")
   }
