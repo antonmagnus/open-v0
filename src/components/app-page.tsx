@@ -9,6 +9,8 @@ import { HTMLAttributes, useEffect, useState } from "react";
 import { Project } from "@/lib/model";
 import useAI from "@/lib/hooks/use-ai";
 import { EmptyScreen } from "./empty-screen";
+import toast from "react-hot-toast";
+import { getSession } from "next-auth/react";
 interface AppPageProps extends HTMLAttributes<HTMLDivElement> {
   project?: Project,
   preview: boolean
@@ -27,17 +29,24 @@ export default function AppPage({ className, project, preview }: AppPageProps) {
     if (project) {
       initProject(project, preview)
     } else {
-      initProject({
-        id: id,
-        title: 'Untitled',
-        description: '',
-        messages: [],
-        userId: '',
-        createdAt: new Date(),
-        path: `/project/${id}`,
-        mode: 'speed',
-        isPrivate: false,
-      }, preview)
+      const session = getSession()
+      session.then((session) => {
+        if (!session?.user.id) {
+          toast.error("Not authenticated")
+          return
+        }
+        initProject({
+          id: id,
+          title: 'Untitled',
+          description: '',
+          messages: [],
+          userId: session?.user?.id,
+          createdAt: new Date(),
+          path: `/project/${id}`,
+          mode: 'speed',
+          isPrivate: false,
+        }, preview)
+      })
     }
   }, [project])
   if (aiResponses && aiResponses.length > 0) {

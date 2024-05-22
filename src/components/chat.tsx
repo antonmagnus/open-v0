@@ -42,12 +42,12 @@ const AssistantMessage = ({ jsonString }: { jsonString: string }) => {
   const messageString = `
   ---
 
-  ### ${message.title}
+  ${message.title ? "### " + message.title : ""}
 
-  ###### ${message.description}
+  ${message.description ? "###### " + message.description : ""}
 
-  #### Plan: 
-  ${message.plan}
+  ${message.plan ? "#### Plan" : ""} 
+  ${message.plan ?? ""}
   ---
   `
   return (

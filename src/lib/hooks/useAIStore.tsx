@@ -134,8 +134,15 @@ const useAIStore = create<AIStore>((set,) => ({
       if (responses.length > 0) {
         responses[responses.length - 1] = response; // Replace the last message with the updated one
       }
+      const title = response.title || 'Untitled Project';
+      const description = response.description || '';
       return {
         aiResponses: responses,
+        project: {
+          ...state.project,
+          title,
+          description,
+        },
       };
     });
   },
