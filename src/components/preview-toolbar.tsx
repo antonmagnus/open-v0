@@ -27,7 +27,8 @@ export function PreviewToolbar(toolbarProps: ToolbarProps) {
   const { toggleCode, shareCode, copyCode, saveCode, toggleDesktopView, toggleMobileView, toggleTabletView } = toolbarProps
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
   const [isSharePending, startShareTransition] = useTransition()
-
+  const [selectedDevice, setDevice] = useState('desktop')
+  const [isCodeToggled, setIsCodeToggled] = useState(false)
   const { project } = useAI()
   const copyShareLink = useCallback(async (project: Project) => {
     if (!project.sharePath) {
@@ -51,48 +52,69 @@ export function PreviewToolbar(toolbarProps: ToolbarProps) {
       }
     })
   }, [])
-
+  const selectMobileView = () => {
+    setDevice('mobile')
+    toggleMobileView()
+  }
+  const selectTabletView = () => {
+    setDevice('tablet')
+    toggleTabletView()
+  }
+  const selectDesktopView = () => {
+    setDevice('desktop')
+    toggleDesktopView()
+  }
+  const toggleCodeButton = () => {
+    toggleCode()
+    setIsCodeToggled(!isCodeToggled)
+  }
   return (
     <div className="flex justify-end items-center gap-2 p-2 border border-gray-200 dark:border-gray-800">
       <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild className="hidden lg:block">
-            <Button className="rounded-full" size="icon" variant="ghost"
-              onClick={toggleDesktopView}>
-              <IconLaptop className="h-4 w-4" />
-              <span className="sr-only">Preview Desktop View</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Preview Desktop View</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild className="hidden md:block">
-            <Button className="rounded-full" size="icon" variant="ghost"
-              onClick={toggleTabletView}>
-              <IconTablet className="h-4 w-4" />
-              <span className="sr-only">Preview Tablet View</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Preview Tablet View</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild className="hidden md:block">
-            <Button className="rounded-full" size="icon" variant="ghost"
-              onClick={toggleMobileView}>
-              <IconSmartphone className="h-4 w-4" />
-              <span className="sr-only">Preview Mobile View</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Preview Mobile View</TooltipContent>
-        </Tooltip>
+        <div className="hidden lg:block">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button className="rounded-full" size="icon" variant={selectedDevice === 'desktop' ? 'outline' : 'ghost'}
+                onClick={selectDesktopView}>
+                <IconLaptop className="h-4 w-4" />
+                <span className="sr-only">Preview Desktop View</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Preview Desktop View</TooltipContent>
+          </Tooltip>
+        </div>
+        <div className="hidden md:block">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button className="rounded-full" size="icon" variant={selectedDevice === 'tablet' ? 'outline' : 'ghost'}
+                onClick={selectTabletView}>
+                <IconTablet className="h-4 w-4" />
+                <span className="sr-only">Preview Tablet View</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Preview Tablet View</TooltipContent>
+          </Tooltip>
+        </div>
+        <div className="hidden md:block">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button className="rounded-full" size="icon" variant={selectedDevice === 'mobile' ? 'outline' : 'ghost'}
+                onClick={selectMobileView}>
+                <IconSmartphone className="h-4 w-4" />
+                <span className="sr-only">Preview Mobile View</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Preview Mobile View</TooltipContent>
+          </Tooltip>
+        </div>
         <div
           className="hidden md:block  border-l border-gray-800 dark:border-gray-200 h-6"
           aria-hidden="true"
         />
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button className="rounded-full" size="icon" variant="ghost"
-              onClick={toggleCode}>
+            <Button className="rounded-full" size="icon" variant={isCodeToggled ? 'outline' : 'ghost'}
+              onClick={toggleCodeButton}>
               <CodeIcon className="h-4 w-4" />
               <span className="sr-only">Toggle code</span>
             </Button>
