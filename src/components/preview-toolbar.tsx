@@ -56,7 +56,7 @@ export function PreviewToolbar(toolbarProps: ToolbarProps) {
     <div className="flex justify-end items-center gap-2 p-2 border border-gray-200 dark:border-gray-800">
       <TooltipProvider>
         <Tooltip>
-          <TooltipTrigger asChild>
+          <TooltipTrigger asChild className="hidden lg:block">
             <Button className="rounded-full" size="icon" variant="ghost"
               onClick={toggleDesktopView}>
               <IconLaptop className="h-4 w-4" />
@@ -66,7 +66,7 @@ export function PreviewToolbar(toolbarProps: ToolbarProps) {
           <TooltipContent>Preview Desktop View</TooltipContent>
         </Tooltip>
         <Tooltip>
-          <TooltipTrigger asChild>
+          <TooltipTrigger asChild className="hidden md:block">
             <Button className="rounded-full" size="icon" variant="ghost"
               onClick={toggleTabletView}>
               <IconTablet className="h-4 w-4" />
@@ -76,7 +76,7 @@ export function PreviewToolbar(toolbarProps: ToolbarProps) {
           <TooltipContent>Preview Tablet View</TooltipContent>
         </Tooltip>
         <Tooltip>
-          <TooltipTrigger asChild>
+          <TooltipTrigger asChild className="hidden md:block">
             <Button className="rounded-full" size="icon" variant="ghost"
               onClick={toggleMobileView}>
               <IconSmartphone className="h-4 w-4" />
@@ -86,7 +86,7 @@ export function PreviewToolbar(toolbarProps: ToolbarProps) {
           <TooltipContent>Preview Mobile View</TooltipContent>
         </Tooltip>
         <div
-          className="border-l border-gray-800 dark:border-gray-200 h-6"
+          className="hidden md:block  border-l border-gray-800 dark:border-gray-200 h-6"
           aria-hidden="true"
         />
         <Tooltip>
