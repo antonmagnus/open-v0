@@ -61,8 +61,6 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
   }
 
   const copyCode = useCallback(async () => {
-    console.log("Copy code")
-
     const copyHeader = `
     /* 
       Component created using https://www.magnolia.dev.

@@ -48,7 +48,7 @@ export function ClearHistory({ clearProjects }: ClearHistoryProps) {
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             disabled={isPending}
-            onClick={event => {
+            onClick={(event: { preventDefault: () => void }) => {
               event.preventDefault()
               startTransition(async () => {
                 const result = await clearProjects()

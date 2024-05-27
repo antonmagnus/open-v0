@@ -74,7 +74,7 @@ export function SidebarActions({
             </AlertDialogCancel>
             <AlertDialogAction
               disabled={isRemovePending}
-              onClick={event => {
+              onClick={(event: { preventDefault: () => void }) => {
                 event.preventDefault()
                 startRemoveTransition(async () => {
                   const result = await removeProject({

@@ -51,6 +51,7 @@ const useAIStore = create<AIStore>((set,) => ({
     messages: [],
     mode: 'speed',
     isPrivate: false,
+    description: '',
   },
   isStreaming: false,
   setIsStreaming: (streaming: boolean) => {

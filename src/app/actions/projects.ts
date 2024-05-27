@@ -1,43 +1,70 @@
 'use server'
-
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { kv } from '@vercel/kv'
+
 import { getSession } from '@/app/actions/serverauth'
 import { auth } from '@/auth'
-import { Project } from '@/lib/model'
+import { CodeMessageResponse, PrismaProject, Project } from '@/lib/model'
+import { MessageParam } from '@/lib/hooks/use-ai'
+import { ChatCompletionMessageParam } from 'openai/resources/chat/completions.mjs'
+import prisma from '@/lib/prisma'
+import { map } from 'zod'
+//import { prisma } from './prisma'
 
-export async function getProjects(userId?: string | null) {
+
+const mapPrismaProjectToProject = (prismaProject: PrismaProject): Project => (
+  {
+    id: prismaProject.id,
+    title: prismaProject.title,
+    createdAt: prismaProject.createdAt,
+    updatedAt: prismaProject.updatedAt,
+    userId: prismaProject.userId,
+    path: prismaProject.path,
+    description: prismaProject.description || '',
+    messages: JSON.parse(prismaProject.messages?.toString() || '') as MessageParam[],
+    sharePath: prismaProject.sharePath || undefined,
+    mode: prismaProject.mode === 'quality' ? 'quality' : 'speed',
+    isPrivate: prismaProject.isPrivate,
+  });
+
+export async function getProjects(userId?: string | null): Promise<Project[]> {
   if (!userId) {
     return []
   }
-
   try {
-    const pipeline = kv.pipeline()
-    const projects: string[] = await kv.zrange(`user:project:${userId}`, 0, -1, {
-      rev: true
+
+    const projects = await prisma.project.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
     })
 
-    for (const project of projects) {
-      pipeline.hgetall(project)
-    }
-
-    const results = await pipeline.exec()
-
-    return results as Project[]
+    return projects.map(mapPrismaProjectToProject)
   } catch (error) {
+    console.error(error)
     return []
   }
 }
 
-export async function getProject(id: string, userId: string) {
-  const project = await kv.hgetall<Project>(`project:${id}`)
+export async function getProject(id: string, userId: string): Promise<Project | null> {
+  try {
 
-  if (!project || (userId && project.userId != userId)) {
+    const project = await prisma.project.findUnique({
+      where: { id },
+      include: {
+        user: true,
+      },
+    })
+
+    if (!project || (userId && project.userId !== userId)) {
+      return null
+    }
+    const projectData = mapPrismaProjectToProject(project)
+
+    return projectData
+  } catch (error) {
+    console.error(error)
     return null
   }
-
-  return project
 }
 
 export async function removeProject({ id, path }: { id: string; path: string }) {
@@ -49,22 +76,32 @@ export async function removeProject({ id, path }: { id: string; path: string }) 
     }
   }
 
-  const uid = await kv.hget<string>(`project:${id}`, 'userId')
+  try {
 
-  if (uid !== session?.user?.id) {
+    const project = await prisma.project.findUnique({
+      where: { id },
+    })
+
+    if (!project || project.userId !== session.user.id) {
+      return {
+        error: 'Unauthorized'
+      }
+    }
+
+    await prisma.project.delete({
+      where: { id },
+    })
+    revalidatePath('/')
+    return revalidatePath(path)
+  } catch (error) {
+    console.error(error)
     return {
-      error: 'Unauthorized'
+      error: 'Error deleting project'
     }
   }
-
-  await kv.del(`project:${id}`)
-  await kv.zrem(`user:project:${session.user.id}`, `project:${id}`)
-
-  revalidatePath('/')
-  return revalidatePath(path)
 }
 
-export async function clearProjects() {
+export async function clearProjects(): Promise<{ error?: string }> {
   const session = await auth()
 
   if (!session?.user?.id) {
@@ -73,46 +110,125 @@ export async function clearProjects() {
     }
   }
 
-  const projects: string[] = await kv.zrange(`user:project:${session.user.id}`, 0, -1)
-  if (!projects.length) {
+  try {
+
+    await prisma.project.deleteMany({
+      where: { userId: session.user.id },
+    })
+
+    revalidatePath('/')
     return redirect('/')
+  } catch (error) {
+    console.error(error)
+    return {
+      error: 'Error clearing projects'
+    }
   }
-  const pipeline = kv.pipeline()
-
-  for (const project of projects) {
-    pipeline.del(project)
-    pipeline.zrem(`user:project:${session.user.id}`, project)
-  }
-
-  await pipeline.exec()
-
-  revalidatePath('/')
-  return redirect('/')
 }
 
-export async function getSharedProject(id: string) {
-  const project = await kv.hgetall<Project>(`project:${id}`)
-  if (!project || !project.sharePath) {
+export async function getSharedProject(id: string): Promise<Project | null> {
+  try {
+
+    const project = await prisma.project.findUnique({
+      where: { id },
+    })
+
+    if (!project || !project.sharePath) {
+      return null
+    }
+
+    return mapPrismaProjectToProject(project)
+  } catch (error) {
+    console.error(error)
     return null
   }
-
-  return project
 }
 
-export async function shareProject(project: Project) {
+export async function shareProject(project: Project): Promise<Project | { error: string }> {
   const session = await getSession()
-  if (!session?.user?.id || session.user.id != project.userId) {
+
+  if (!session?.user?.id || session.user.id !== project.userId) {
     return {
       error: 'Unauthorized'
     }
   }
 
-  const payload = {
-    ...project,
-    sharePath: `/share/${project.id}`
+  try {
+
+    const updatedProject = await prisma.project.update({
+      where: { id: project.id },
+      data: {
+        sharePath: `/share/${project.id}`,
+      },
+    })
+
+    return mapPrismaProjectToProject(updatedProject)
+  } catch (error) {
+    console.error(error)
+    return {
+      error: 'Error sharing project'
+    }
+  }
+}
+
+
+export async function storeMessage(projectId: string, completion: CodeMessageResponse, messages: ChatCompletionMessageParam[], userId: string, mode: 'quality' | 'speed', isPrivate: boolean) {
+
+  if (!messages || messages.length === 0) {
+    return
+  }
+  const firstMessage = messages[0].content as string
+  const title = completion.title ?? firstMessage.substring(0, 100)
+
+  const path = `/project/${projectId}`
+
+  // Check if the project already exists
+  let project = await prisma.project.findUnique({
+    where: { id: projectId, userId: userId },
+  })
+
+  // If the project does not exist, create it
+  const date = new Date()
+  const newMessages = messages.map(msg => ({
+    role: msg.role,
+    content: msg.content || '',
+  })).concat({
+    role: 'assistant',
+    content: JSON.stringify(completion),
+  })
+
+
+  // If the project does not exist, create it
+  if (!project) {
+    await prisma.project.create({
+      data: {
+        id: projectId,
+        title,
+        userId,
+        createdAt: date,
+        updatedAt: date,
+        path,
+        description: '',
+        mode,
+        isPrivate,
+        sharePath: null,
+        messages: JSON.stringify(newMessages),
+      },
+    })
+  } else {
+    // If the project exists, update messages field
+    await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        messages: {
+          push: JSON.stringify(newMessages)
+        },
+        updatedAt: date,
+      }
+    })
   }
 
-  await kv.hmset(`project:${project.id}`, payload)
 
-  return payload
+  // Revalidate the path to update the frontend
+  revalidatePath(path)
 }

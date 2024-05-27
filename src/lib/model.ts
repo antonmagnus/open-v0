@@ -1,5 +1,6 @@
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions.mjs";
 import { MessageParam } from "./hooks/use-ai";
+import { Prisma } from '@prisma/client';
 
 
 export type PostMessages = {
@@ -38,17 +39,18 @@ export interface AIOptions {
   isPrivate: boolean,
 }
 
-export interface Project extends Record<string, any> {
-  id: string
-  title: string
-  createdAt: Date
-  userId: string
-  path: string
-  messages: MessageParam[]
-  sharePath?: string
-  mode: "quality" | "speed",
-  isPrivate: boolean,
-}
+const projectWithUser = {
+  include: {
+    user: true,
+  },
+} satisfies Prisma.ProjectDefaultArgs;
+
+export type PrismaProject = Prisma.ProjectGetPayload<Prisma.ProjectDefaultArgs>;
+export type PrismaUser = Prisma.UserGetPayload<Prisma.UserDefaultArgs>;
+// Define types based on queries
+export type ProjectWithUser = Prisma.ProjectGetPayload<typeof projectWithUser>;
+export type ProjectWithMessagesAndUser = Prisma.ProjectGetPayload<typeof projectWithUser>;
+
 
 export type ServerActionResult<Result> = Promise<
   | Result
@@ -56,3 +58,25 @@ export type ServerActionResult<Result> = Promise<
     error: string
   }
 >
+export interface Project extends Record<string, any> {
+  id: string
+  title: string
+  createdAt: Date
+  userId: string
+  path: string
+  messages: MessageParam[],
+  description: string,
+  sharePath?: string
+  mode: "quality" | "speed",
+  isPrivate: boolean,
+}
+
+export interface User extends Record<string, any> {
+  id: string;
+  email: string;
+  name: string;
+  image: string;
+  createdAt: Date;
+  subscription: string;
+  tokens: number;
+}

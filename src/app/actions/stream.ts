@@ -9,10 +9,9 @@ import { ChatCompletionMessageParam } from "openai/resources/chat/completions.mj
 import { CodeMessageResponse, PostMessages } from "@/lib/model";
 import { kv } from '@vercel/kv';
 import { getSession } from '@/app/actions/serverauth'
-type systemPromptReq = {
-  messages: ChatCompletionMessageParam[]
-}
-async function getSystemPrompt(messages: systemPromptReq): Promise<string> {
+import { storeMessage } from './projects';
+
+async function getSystemPrompt(messages: any): Promise<string> {
   //only answer in an executable react component (no markdown and no imports other than from 'react') styled using tailwind, default export should be export default App
   return `
   
@@ -81,31 +80,7 @@ async function storeMessageCompletion(projectId: string, completion: string, mes
   if (!comp) {
     return
   }
-  const firstMessage = messages[0].content as string
-  const title = comp.title ?? firstMessage.substring(0, 100)
-  const id = projectId ?? nanoid()
-  const createdAt = Date.now()
-  const path = `/project/${id}`
-  const payload = {
-    id,
-    title,
-    userId,
-    createdAt,
-    path,
-    aiOptions,
-    messages: [
-      ...messages,
-      {
-        content: JSON.stringify(comp),
-        role: 'assistant'
-      }
-    ]
-  }
-  await kv.hmset(`project:${id}`, payload)
-  await kv.zadd(`user:project:${userId}`, {
-    score: createdAt,
-    member: `project:${id}`
-  })
+  storeMessage(projectId, comp, messages, userId, aiOptions.mode, aiOptions.isPrivate)
 }
 
 export async function generate(input: PostMessages) {

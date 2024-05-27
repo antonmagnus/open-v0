@@ -1,5 +1,8 @@
 import NextAuth, { type DefaultSession } from 'next-auth'
 import GitHub from 'next-auth/providers/github'
+import prisma from './lib/prisma'
+import { createUser } from './app/actions/users'
+import { PrismaAdapter } from "@auth/prisma-adapter"
 
 declare module 'next-auth' {
   interface Session {
@@ -16,10 +19,11 @@ export const {
 } = NextAuth({
   providers: [GitHub(
     {
-      clientId: process.env.AUTH_GITHUB_ID ?? process.env.DEV_GITHUB_ID,
-      clientSecret: process.env.AUTH_GITHUB_SECRET ?? process.env.DEV_GITHUB_SECRET,
+      clientId: process.env.PROD_GITHUB_ID ?? process.env.DEV_GITHUB_ID,
+      clientSecret: process.env.PROD_GITHUB_SECRET ?? process.env.DEV_GITHUB_SECRET,
     }
   )],
+  adapter: PrismaAdapter(prisma),
   callbacks: {
     jwt({ token, profile }) {
       if (profile) {
@@ -30,7 +34,7 @@ export const {
     },
     session: ({ session, token }) => {
       if (token) {
-        session.user.id = token.id as string
+        session.user.id = token.sub as string
         session.user.image = token.image as string
       }
       return {
