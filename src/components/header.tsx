@@ -13,12 +13,13 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { UserMenu } from '@/components/user-menu'
 
 import ShowCoversationButton from './conversation-button'
-import { auth } from '@/auth'
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
 import clsx from 'clsx'
 
 export async function Header() {
 
-  const session = await auth()
+  const session = await getServerSession(authOptions)
 
   return (
     <header className="top-0 z-50 flex h-16 w-full shrink-0 items-center justify-between border-b px-4">

@@ -2,8 +2,9 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
-import { getSession } from '@/app/actions/serverauth'
-import { auth } from '@/auth'
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+
 import { CodeMessageResponse, PrismaProject, Project } from '@/lib/model'
 import { MessageParam } from '@/lib/hooks/use-ai'
 import { ChatCompletionMessageParam } from 'openai/resources/chat/completions.mjs'
@@ -68,7 +69,7 @@ export async function getProject(id: string, userId: string): Promise<Project | 
 }
 
 export async function removeProject({ id, path }: { id: string; path: string }) {
-  const session = await auth()
+  const session = await getServerSession(authOptions);
 
   if (!session) {
     return {
@@ -102,7 +103,7 @@ export async function removeProject({ id, path }: { id: string; path: string }) 
 }
 
 export async function clearProjects(): Promise<{ error?: string }> {
-  const session = await auth()
+  const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
     return {
@@ -145,7 +146,7 @@ export async function getSharedProject(id: string): Promise<Project | null> {
 }
 
 export async function shareProject(project: Project): Promise<Project | { error: string }> {
-  const session = await getSession()
+  const session = await getServerSession(authOptions);
 
   if (!session?.user?.id || session.user.id !== project.userId) {
     return {

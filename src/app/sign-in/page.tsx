@@ -1,9 +1,11 @@
-import { auth } from '@/auth'
+'use server'
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
 import { LoginButton } from '@/components/login-button'
 import { redirect } from 'next/navigation'
 
 export default async function SignInPage() {
-  const session = await auth()
+  const session = await getServerSession(authOptions)
   // redirect to home if user is already logged in
   if (session?.user) {
     redirect('/')

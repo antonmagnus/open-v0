@@ -1,12 +1,10 @@
 
+'use server'
 import { type Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import { getSharedProject } from '@/app/actions/projects'
 import AppPage from '@/components/app-page'
-
-export const runtime = 'edge'
-export const preferredRegion = 'home'
 
 interface SharePageProps {
   params: {

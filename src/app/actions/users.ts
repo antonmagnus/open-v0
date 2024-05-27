@@ -1,6 +1,7 @@
+'use server'
 import { revalidatePath } from 'next/cache'
-
-import { auth } from '@/auth'
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
 import prisma from '@/lib/prisma'
 import { User } from '@/lib/model';
 
@@ -78,7 +79,7 @@ export async function updateUser(id: string, data: Partial<Omit<User, 'id' | 'cr
 }
 
 export async function deleteUser(id: string): Promise<{ error?: string }> {
-  const session = await auth()
+  const session = await getServerSession(authOptions);
 
   if (!session) {
     return {

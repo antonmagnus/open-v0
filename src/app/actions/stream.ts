@@ -8,7 +8,8 @@ import { createStreamableValue } from 'ai/rsc';
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions.mjs";
 import { CodeMessageResponse, PostMessages } from "@/lib/model";
 import { kv } from '@vercel/kv';
-import { getSession } from '@/app/actions/serverauth'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth';
 import { storeMessage } from './projects';
 
 async function getSystemPrompt(messages: any): Promise<string> {
@@ -89,7 +90,7 @@ export async function generate(input: PostMessages) {
   const messages = input.project.messages
   const aiOptions = { mode: input.project.mode, isPrivate: input.project.isPrivate }
   let systemPromptMessage: string
-  const session = await getSession()
+  const session = await getServerSession(authOptions)
   const userId = session?.user?.id
   if (!userId || !projectId) {
     return {

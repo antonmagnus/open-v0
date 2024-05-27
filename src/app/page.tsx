@@ -1,13 +1,17 @@
-import { auth } from "@/auth";
+import { getServerSession } from "next-auth";
+import { AuthOptions } from "next-auth";
 import AppPage from "@/components/app-page";
-import { SessionProvider } from "next-auth/react";
+import SessionProvider from "@/lib/provider";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export const maxDuration = 60;
-export const runtime = 'edge'
-
 export default async function Home() {
-  const session = await auth()
-  if (!session) return <div>Not authenticated</div>
+  const session = await getServerSession(authOptions)
+  if (!session) {
+    // redirect to sign in if user is not logged in
+    redirect('/sign-in')
+  }
 
   return (
     <SessionProvider session={session}>

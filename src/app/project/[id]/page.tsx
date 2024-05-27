@@ -1,15 +1,15 @@
+'use server'
 import { type Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
+import { getServerSession } from 'next-auth';
+import { authOptions } from "@/lib/auth";
 
-import { auth } from '@/auth'
 import { getProject } from '@/app/actions/projects'
 import { Project } from '@/lib/model'
 import useAI from '@/lib/hooks/use-ai'
 import { AIOptions } from '@/lib/model'
 import AppPage from '@/components/app-page'
 
-export const runtime = 'edge'
-export const preferredRegion = 'home'
 
 export interface ProjectPageProps {
   params: {
@@ -20,7 +20,7 @@ export interface ProjectPageProps {
 export async function generateMetadata({
   params
 }: ProjectPageProps): Promise<Metadata> {
-  const session = await auth()
+  const session = await getServerSession(authOptions)
 
   if (!session?.user) {
     return {}
@@ -33,7 +33,7 @@ export async function generateMetadata({
 }
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
-  const session = await auth()
+  const session = await getServerSession(authOptions)
   if (!session?.user) {
     redirect(`/sign-in?next=/project/${params.id}`)
   }
