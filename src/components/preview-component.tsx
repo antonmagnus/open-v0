@@ -133,7 +133,8 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
 
     try {
       setIsStreaming(true);
-      const res = await fetch('https://rollups-b3tslor6ta-uc.a.run.app', {
+      const url = process.env.NODE_ENV === 'development' ? 'http://localhost:3000/api/rollup' : 'https://rollups-b3tslor6ta-uc.a.run.app';
+      const res = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -142,6 +143,7 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
       });
       const { code } = await res.json();
       setPreviewCode(code);
+
     }
     catch (err: any) {
       console.error('Error fetching preview code:', err);
