@@ -3,7 +3,7 @@ import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { AIOptions, CodeMessageResponse, LatestCodeMessageResponseVersion, PostMessages, Project } from '../model';
 import { useShallow } from 'zustand/react/shallow'
 import { useEffect, useRef, useState } from 'react';
-import useAIStore, { AIStore } from './useAIStore';
+import useAIStore, { AIActions, AIState } from './useAIStore';
 import { generate } from '../../app/actions/stream'
 import { readStreamableValue } from 'ai/rsc';
 //import { useSession } from 'next-auth/react';
@@ -42,24 +42,26 @@ const testResponseChunks: string[] = [
 function useAI() {
 
 
-  const [project, setProject, aiResponses, isStreaming, setIsStreaming, updateAIOptions, appendAIMessage, appendChunkToLastAIMessage, updateLastAIMessage, appendLastAIResponse, updateLastAIResponse, setAIMessages, isPreview, setIsPreview] = useAIStore(
-    useShallow((state: AIStore) => [
-      state.project,
-      state.setProject,
-      state.aiResponses,
-      state.isStreaming,
-      state.setIsStreaming,
-      state.updateAIOptions,
-      state.appendAIMessage,
-      state.appendChunkToLastAIMessage,
-      state.updateLastAIMessage,
-      state.appendAIResponse,
-      state.updateLastAIResponse,
-      state.setAIMessages,
-      state.isPreview,
-      state.setIsPreview,
+  const [project, setProject, resetState, aiResponses, isStreaming, setIsStreaming, updateAIOptions, appendAIMessage, appendChunkToLastAIMessage, updateLastAIMessage, appendLastAIResponse, updateLastAIResponse, setAIMessages, isPreview, setIsPreview] = useAIStore(
+    useShallow((store: AIState & AIActions) => [
+      store.project,
+      store.setProject,
+      store.resetState,
+      store.aiResponses,
+      store.isStreaming,
+      store.setIsStreaming,
+      store.updateAIOptions,
+      store.appendAIMessage,
+      store.appendChunkToLastAIMessage,
+      store.updateLastAIMessage,
+      store.appendAIResponse,
+      store.updateLastAIResponse,
+      store.setAIMessages,
+      store.isPreview,
+      store.setIsPreview,
     ]),
   )
+
   //const session = useSession()
   const aiMessagesRef = useRef(project.messages);
   aiMessagesRef.current = project.messages;
@@ -135,6 +137,6 @@ function useAI() {
     setIsPreview(isPreview);
   }
 
-  return { project, initProject, isPreview, updateAIOptions, setMode, setPrivate, sendMessage, aiResponses, updateLastResponse, isStreaming, setIsStreaming };
+  return { project, initProject, resetState, isPreview, updateAIOptions, setMode, setPrivate, sendMessage, aiResponses, updateLastResponse, isStreaming, setIsStreaming };
 }
 export default useAI;

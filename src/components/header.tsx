@@ -16,11 +16,10 @@ import ShowCoversationButton from './conversation-button'
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import clsx from 'clsx'
+import { NewProjectButton } from './new-project-button'
 
 export async function Header() {
-
   const session = await getServerSession(authOptions)
-
   return (
     <header className="top-0 z-50 flex h-16 w-full shrink-0 items-center justify-between border-b px-4">
       <div className="flex items-center">
@@ -32,9 +31,7 @@ export async function Header() {
             </React.Suspense>
             <SidebarFooter>
               <div className='m-2 flex w-full flex-col'>
-                <Button className='p-5'>
-                  <Link href="/">New Project</Link>
-                </Button>
+                <NewProjectButton />
                 <div>
                   <ThemeToggle />
                   {/* <ClearHistory clearProjects={clearProjects} /> */}

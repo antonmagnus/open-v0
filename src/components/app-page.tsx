@@ -43,7 +43,7 @@ export default function AppPage({ className, project, preview }: AppPageProps) {
           userId: session?.user?.id,
           createdAt: new Date(),
           path: `/project/${id}`,
-          mode: 'speed',
+          mode: 'quality',
           isPrivate: false,
         }, preview)
       })

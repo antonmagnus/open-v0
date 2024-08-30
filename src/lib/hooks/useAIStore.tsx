@@ -3,15 +3,18 @@ import { AIOptions, CodeMessageResponse, Project, SnackbarOptions } from '../mod
 import { MessageParam } from './use-ai';
 import { nanoid } from 'ai';
 
-export interface AIStore {
+export interface AIState {
   project: Project,
-  setProject: (project: Project) => void
   isPreview: boolean,
   isStreaming: boolean,
+  aiResponses?: CodeMessageResponse[],
+}
+export interface AIActions {
+  setProject: (project: Project) => void
+  resetState: () => void
   setIsStreaming: (streaming: boolean) => void
   setIsPreview: (isPreview: boolean) => void
   updateAIOptions: (options: Partial<AIOptions>) => void
-  aiResponses?: CodeMessageResponse[]
   setAIMessages: (messages: MessageParam[]) => void
   appendAIMessage: (message: MessageParam) => void
   updateLastAIMessage: (content: string) => void
@@ -19,6 +22,22 @@ export interface AIStore {
   appendAIResponse: (response: CodeMessageResponse) => void
   updateLastAIResponse: (response: CodeMessageResponse) => void
 }
+// export interface AIStore {
+//   project: Project,
+//   setProject: (project: Project) => void
+//   isPreview: boolean,
+//   isStreaming: boolean,
+//   setIsStreaming: (streaming: boolean) => void
+//   setIsPreview: (isPreview: boolean) => void
+//   updateAIOptions: (options: Partial<AIOptions>) => void
+//   aiResponses?: CodeMessageResponse[]
+//   setAIMessages: (messages: MessageParam[]) => void
+//   appendAIMessage: (message: MessageParam) => void
+//   updateLastAIMessage: (content: string) => void
+//   appendChunkToLastAIMessage: (chunk: string) => void
+//   appendAIResponse: (response: CodeMessageResponse) => void
+//   updateLastAIResponse: (response: CodeMessageResponse) => void
+// }
 
 const assistantMessageToCodeMessageResponse = (message: MessageParam): CodeMessageResponse => {
 
@@ -39,7 +58,8 @@ const assistantMessageToCodeMessageResponse = (message: MessageParam): CodeMessa
  * A hook to subscribe to the store. Look at https://github.com/pmndrs/zustand for more
  * documentation
  */
-const useAIStore = create<AIStore>((set,) => ({
+
+const initialState: AIState = {
   isPreview: false,
   aiResponses: [],
   project: {
@@ -54,6 +74,14 @@ const useAIStore = create<AIStore>((set,) => ({
     description: '',
   },
   isStreaming: false,
+}
+const useAIStore = create<AIState & AIActions>((set,) => ({
+  ...initialState,
+  resetState: () => {
+    set({
+      ...initialState,
+    })
+  },
   setIsStreaming: (streaming: boolean) => {
     set({
       isStreaming: streaming,
@@ -80,7 +108,7 @@ const useAIStore = create<AIStore>((set,) => ({
   },
 
   updateAIOptions: (aiOptions: Partial<AIOptions>) => {
-    set((state: AIStore) => {
+    set((state: AIState) => {
       const mode = aiOptions.mode || state.project.mode;
       const isPrivate = aiOptions.isPrivate || state.project.isPrivate;
       return {
@@ -101,7 +129,7 @@ const useAIStore = create<AIStore>((set,) => ({
         responses.push(mes);
       }
     }
-    set((state: AIStore) => {
+    set((state: AIState) => {
       return {
         project: {
           ...state.project,
@@ -112,7 +140,7 @@ const useAIStore = create<AIStore>((set,) => ({
     });
   },
   appendAIMessage: (message: MessageParam) => {
-    set((state: AIStore) => {
+    set((state: AIState) => {
       return {
         project: {
           ...state.project,
@@ -123,14 +151,14 @@ const useAIStore = create<AIStore>((set,) => ({
   },
 
   appendAIResponse: (response: CodeMessageResponse) => {
-    set((state: AIStore) => {
+    set((state: AIState) => {
       return {
         aiResponses: [...state.aiResponses || [], response],
       };
     });
   },
   updateLastAIResponse: (response: CodeMessageResponse) => {
-    set((state: AIStore) => {
+    set((state: AIState) => {
       const responses = [...state.aiResponses || []]; // Create a new array to ensure immutability
       if (responses.length > 0) {
         responses[responses.length - 1] = response; // Replace the last message with the updated one
@@ -148,7 +176,7 @@ const useAIStore = create<AIStore>((set,) => ({
     });
   },
   updateLastAIMessage: (content: string) => {
-    set((state: AIStore) => {
+    set((state: AIState) => {
       const messages = [...state.project.messages || []]; // Create a new array to ensure immutability
       if (messages.length > 0) {
         const lastMessage = { ...messages[messages.length - 1] }; // Clone the last message
@@ -164,7 +192,7 @@ const useAIStore = create<AIStore>((set,) => ({
     });
   },
   appendChunkToLastAIMessage: (chunk: string) => {
-    set((state: AIStore) => {
+    set((state: AIState) => {
       if (!state.project.messages || state.project.messages.length === 0) {
         return state;
       }
