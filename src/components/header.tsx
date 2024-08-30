@@ -57,9 +57,9 @@ export async function Header() {
               <Link href="/sign-in?callbackUrl=/">Login</Link>
             </Button>
           )}
-          <ShowCoversationButton className={clsx(!session?.user && 'hidden')} />
         </div>
       </div>
+      <ShowCoversationButton className={clsx(!session?.user && 'hidden')} />
     </header>
   )
 }
