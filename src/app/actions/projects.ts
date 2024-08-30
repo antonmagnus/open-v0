@@ -39,7 +39,16 @@ export async function getProjects(userId?: string | null): Promise<Project[]> {
       orderBy: { createdAt: 'desc' },
     })
 
-    return projects.map(mapPrismaProjectToProject)
+    return projects.map(p => {
+      try {
+        const proj = mapPrismaProjectToProject(p)
+        return proj
+      } catch (error) {
+        console.error(error)
+        return null
+      }
+    }).filter(proj => proj !== null) as Project[];
+
   } catch (error) {
     console.error(error)
     return []
