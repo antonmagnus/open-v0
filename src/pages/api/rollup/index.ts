@@ -5,7 +5,7 @@ import nodeResolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import babel from '@rollup/plugin-babel';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
-import typescript from '@rollup/plugin-typescript';
+//import typescript from '@rollup/plugin-typescript';
 
 //import { Button } from '../../../components/ui/button';
 
