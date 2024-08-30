@@ -25,12 +25,13 @@ export function PromptForm({ className, id, showPrivate, input }: PromptProps) {
     setQuality(true)
     setSpeed(false)
     setMode("quality")
+    return toast.success('Now using gpt-4o')
   }
   const toggleSpeed = () => {
     setQuality(false)
     setSpeed(true)
     setMode("speed")
-
+    return toast.success('Now using gpt-4o-mini')
   }
   const togglePrivate = () => {
     setIsPrivate(!isPrivate)
