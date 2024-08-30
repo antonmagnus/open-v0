@@ -22,6 +22,7 @@ export const metadata: Metadata = {
   }
 }
 import type { Viewport } from 'next'
+import { Analytics } from '@vercel/analytics/react'
 
 export const viewport: Viewport = {
   themeColor: [
@@ -37,6 +38,7 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <Analytics />
       <head />
       <body
         className={cn(
