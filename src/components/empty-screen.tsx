@@ -24,11 +24,28 @@ export function EmptyScreen({ setInput }: Pick<UseChatHelpers, 'setInput'>) {
         </h1>
         <p className="mb-2 leading-normal text-muted-foreground">
           This is AI chatbot app is built for creating React components {' '}
-          using
-          <ExternalLink href="https://vernisaga.com">
-            Tools from vernisaga
+          using tools from {' '}
+          <ExternalLink href="https://openai.com">
+            OpenAI
           </ExternalLink>
+          {' and '}
+          <ExternalLink href="https://vercel.com">
+            Vercel
+          </ExternalLink>.
 
+          {'\n'}
+        </p>
+        <p className='leading-normal text-muted-foreground'>
+          The full source code for this project is available on {' '}
+          <ExternalLink href="https://github.com/antonmagnus/open-v0">
+            Github
+          </ExternalLink>.
+          And you can read more about the project on my {' '}
+          <ExternalLink href="https://antonmagnusson.se">
+            blog
+          </ExternalLink>.
+
+          {'\n'}
         </p>
         <p className='leading-normal text-muted-foreground'>
           The data  you enter is controlled by you and not used to train the AI.
