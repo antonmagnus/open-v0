@@ -16,8 +16,8 @@ export function PromptForm({ className, id, showPrivate, input }: PromptProps) {
   const { formRef, onKeyDown } = useEnterSubmit()
   const [prompt, setPrompt] = useState<string>(input || "")
   const [isPrivate, setIsPrivate] = useState<boolean>(false)
-  const [quality, setQuality] = useState<boolean>(false)
-  const [speed, setSpeed] = useState<boolean>(true)
+  const [quality, setQuality] = useState<boolean>(true)
+  const [speed, setSpeed] = useState<boolean>(false)
   const { sendMessage, setMode, setPrivate } = useAI()
 
   const toggleQuality = () => {

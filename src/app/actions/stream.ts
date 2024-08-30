@@ -73,7 +73,6 @@ const getMessageFromCompletion = (completion: string): CodeMessageResponse | nul
   return storedResponse.curr
 }
 async function storeMessageCompletion(projectId: string, completion: string, messages: ChatCompletionMessageParam[], userId: string, aiOptions?: any) {
-  'use server'
   if (!messages || messages.length === 0) {
     return
   }
@@ -85,7 +84,6 @@ async function storeMessageCompletion(projectId: string, completion: string, mes
 }
 
 export async function generate(input: PostMessages) {
-  'use server'
   const projectId = input.project.id
   const messages = input.project.messages
   const aiOptions = { mode: input.project.mode, isPrivate: input.project.isPrivate }
@@ -110,10 +108,11 @@ export async function generate(input: PostMessages) {
     }
   }
   let retry = true;
-  let model = "gpt-4o"
+  let model = aiOptions.mode === "quality" ? "gpt-4o" : "gpt-4o-mini"
   // try using gpt 4 first, if it fails (can be context window or rate limit), fallback to gpt 3.5
   // the open ai and the stream response should be seperate try catch blocks and not while loop
   // now the storage can happen twice but im tiered and i dont want to think about it
+  console.log('model', model)
   while (retry) {
     try {
       const stream = createStreamableValue();
@@ -149,7 +148,7 @@ export async function generate(input: PostMessages) {
 
     } catch (error: any) {
       console.error(error)
-      if (model === 'gpt-3.5-turbo-16k') {
+      if (model === 'gpt-4o-mini') {
         // retry bool not needed here, but just to be explicit
         retry = false
         return {
@@ -157,7 +156,7 @@ export async function generate(input: PostMessages) {
         }
       }
       else {
-        model = 'gpt-3.5-turbo-16k'
+        model = 'gpt-4o-mini'
       }
     }
   }
