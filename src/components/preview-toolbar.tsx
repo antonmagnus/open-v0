@@ -143,7 +143,7 @@ export function PreviewToolbar(toolbarProps: ToolbarProps) {
           </TooltipTrigger>
           <TooltipContent>Copy code</TooltipContent>
         </Tooltip>
-        <Tooltip>
+        {/* <Tooltip>
           <TooltipTrigger asChild>
             <Button className="rounded-full" size="icon" variant="ghost"
               onClick={saveCode}
@@ -153,7 +153,7 @@ export function PreviewToolbar(toolbarProps: ToolbarProps) {
             </Button>
           </TooltipTrigger>
           <TooltipContent>Save code</TooltipContent>
-        </Tooltip>
+        </Tooltip> */}
       </TooltipProvider>
       {/* Share dialog       */}
 

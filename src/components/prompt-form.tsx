@@ -4,6 +4,7 @@ import useAI from "@/lib/hooks/use-ai"
 import { useEnterSubmit } from "@/lib/hooks/use-enter-submit"
 import clsx from "clsx"
 import { HTMLAttributes, JSX, SVGProps, useEffect, useState } from "react"
+import toast from "react-hot-toast"
 
 interface PromptProps extends HTMLAttributes<HTMLDivElement> {
   id: string
@@ -52,7 +53,7 @@ export function PromptForm({ className, id, showPrivate, input }: PromptProps) {
   }
 
   const selectImage = () => {
-    console.log("Image uploaded")
+    return toast.error('Image upload not supported yet')
   }
 
   return (

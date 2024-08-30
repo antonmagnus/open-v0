@@ -47,6 +47,8 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
   const [editorValue, setEditorValue] = useState(defaultCode);
   const [previewCode, setPreviewCode] = useState('');
   const [showCode, setShowCode] = useState(false);
+  const [hasUserEdited, setHasUserEdited] = useState(false);
+  const [lastCodeBeforeEdit, setLastCodeBeforeEdit] = useState('');
   const { screenSize, loading } = useScreenSize();
   const [allowSplit, setAllowSplit] = useState(true);
   const { project, aiResponses, isStreaming, setIsStreaming } = useAI();
@@ -115,9 +117,10 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
       const lastMessage = aiResponses[aiResponses.length - 1]
       const formattedCode = formatJSXCode(lastMessage.code);
       setEditorValue(formattedCode)
+      setLastCodeBeforeEdit(formattedCode)
+      setHasUserEdited(false);
     }
   }, [aiResponses])
-
   useEffect(() => {
     if (loading) return;
     if (screenSize.width < 640) {
@@ -181,7 +184,7 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
           >
 
             <LivePreview className="w-full rounded-sm" code={previewCode || ''} loading={isStreaming} device={device} />
-            {showCode && <CodeEditor className={clsx(!showCode && "hidden")} code={editorValue || ''} setCode={(v: any) => setEditorValue(v || '')} />}
+            {showCode && <CodeEditor className={clsx(!showCode && "hidden")} code={editorValue || ''} setCode={(v: any) => setEditorValue(v || '')} setHasUserEdited={setHasUserEdited} hasUserEdited={hasUserEdited} codeBeforeUserEdit={lastCodeBeforeEdit} />}
           </Split>
 
           : <LivePreview className={clsx("h-full p-2 rounded-sm")} code={previewCode || ''} loading={isStreaming} device={device} />
@@ -197,7 +200,7 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
         <PreviewToolbar toggleCode={toggleCode} shareCode={shareCode} copyCode={copyCode} saveCode={saveCode}
           toggleDesktopView={toggleDesktopView} toggleMobileView={toggleMobileView} toggleTabletView={toggleTabletView} />
         {showCode ?
-          <CodeEditor className="h-full w-full" code={editorValue || ''} setCode={(v: any) => setEditorValue(v || '')} />
+          <CodeEditor className="h-full w-full" code={editorValue || ''} setCode={(v: any) => setEditorValue(v || '')} setHasUserEdited={setHasUserEdited} hasUserEdited={hasUserEdited} codeBeforeUserEdit={lastCodeBeforeEdit} />
           : <LivePreview className="w-full h-full p-2 rounded-sm" code={previewCode || ''} loading={isStreaming} device={device} />
         }
       </div >
