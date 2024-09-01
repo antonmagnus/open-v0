@@ -63,10 +63,14 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
   }
 
   const copyCode = useCallback(async () => {
+    let linkField = ''
+    if (project.path && project.path.length > 0) {
+      linkField = `Link: ${project.path}`
+    }
     const copyHeader = `
     /* 
       Component created using https://www.magnolia.dev.
-      Link: ${project.path}     
+      ${linkField}     
     */
     ${editorValue}
     `
