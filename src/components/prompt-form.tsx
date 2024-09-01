@@ -73,12 +73,14 @@ export function PromptForm({ className, id, showPrivate, input }: PromptProps) {
         <div className="flex justify-between items-center">
           <div className="flex space-x-4">
             <Button className="" variant="ghost"
+              type="button"
               onClick={selectImage}
             >
               <ImageIcon className="h-5 w-5" />
               <p className="px-2">Image</p>
             </Button>
             <Button className={clsx(!showPrivate && "hidden", "")} variant="ghost"
+              type="button"
               onClick={togglePrivate}
             >
               {isPrivate ?
@@ -94,12 +96,14 @@ export function PromptForm({ className, id, showPrivate, input }: PromptProps) {
           <div className="flex space-x-4" aria-label="Quality or Speed">
             <div className="flex rounded-md ">
               <Button className="rounded-r-none"
+                type="button"
                 variant={quality ? "highlight" : "outline"}
                 onClick={toggleQuality}
               >
                 Quality
               </Button>
               <Button className="rounded-l-none"
+                type="button"
                 variant={speed ? "highlight" : "outline"}
                 onClick={toggleSpeed}
               >
