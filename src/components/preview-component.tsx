@@ -55,11 +55,10 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
 
   const [device, setDevice] = useState<'mobile' | 'desktop' | 'tablet'>('desktop');
   const toggleCode = () => {
-    console.log("Toggle code")
     setShowCode(!showCode);
   }
   const shareCode = () => {
-    console.log("Share code")
+    //console.log("Share code")
   }
 
   const copyCode = useCallback(async () => {
@@ -104,7 +103,7 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
     })
   }, [editorValue])
   const saveCode = () => {
-    console.log("Save code")
+    //console.log("Save code")
   }
   const toggleTabletView = () => {
     setDevice('tablet');

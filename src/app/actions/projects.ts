@@ -44,7 +44,7 @@ export async function getProjects(userId?: string | null): Promise<Project[]> {
         const proj = mapPrismaProjectToProject(p)
         return proj
       } catch (error) {
-        console.error(error)
+        //console.error(error)
         return null
       }
     }).filter(proj => proj !== null) as Project[];

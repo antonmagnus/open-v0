@@ -104,7 +104,7 @@ function useAI() {
         }
       })
     } catch (error) {
-      console.log("Error sending message", error);
+      console.error("Error sending message", error);
     }
     finally {
       setIsStreaming(false);
