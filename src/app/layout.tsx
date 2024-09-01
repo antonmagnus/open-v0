@@ -38,7 +38,6 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <Analytics />
       <head />
       <body
         className={cn(
@@ -46,8 +45,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
           fontSans.variable,
           fontMono.variable
         )}
+
       >
         <Toaster />
+        <Analytics />
         <Providers attribute="class" defaultTheme="system" enableSystem>
           <div className="flex h-screen flex-col">
             {/* @ts-ignore */}
