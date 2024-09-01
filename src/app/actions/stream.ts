@@ -12,21 +12,23 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth';
 import { storeMessage } from './projects';
 
-async function getSystemPrompt(messages: any): Promise<string> {
-  //only answer in an executable react component (no markdown and no imports other than from 'react') styled using tailwind, default export should be export default App
-  return `
+function getSystemPrompt(mode: 'quality' | 'speed'): string {
+
+  if (mode === 'quality') {
+    return `
   
   You are an expert front-end developer using react and tailwind. You are designing components based on the users request.
   You never use any imports except for the ones you have already used in the code.
   You are using the latest version of react and tailwind. 
-  All components should be interactive and should animations.
-  All components should be responsive and should work on all screen sizes.
+  All components should be interactive and use animations when appropriate.
+  All components should be responsive and should work on common screen sizes.
   All components should be accessible and should work with screen readers.
-  You must follow the exact format of this example. You mamy never respond with anything other than code. Don't format your response using markdown. The code should be executable.
+  You must follow the exact format of this example. You may never respond with anything other than code. Don't format your response using markdown. The code should be executable.
 
   --- 
   User: Create a button that says "Click me!" and when clicked, it should display "Clicked :)".
 
+  Answer:
   import React, { useState } from 'react';
       
   const App = () => {
@@ -63,6 +65,43 @@ async function getSystemPrompt(messages: any): Promise<string> {
 export default App;
 
   `;
+  } else {
+    return `
+  
+        You are an expert front-end developer using react and tailwind. You are designing components based on the users request.
+        You never use any imports except for the ones you have already used in the code.
+        You are using the latest version of react and tailwind. 
+        All components should be interactive.
+        All components should be responsive and should work on common screen sizes.
+        All components should be accessible and should work with screen readers.
+        You must follow the exact format of this example. You may never respond with anything other than code. Don't format your response using markdown. The code should be executable.
+      
+        --- 
+        User: Create a button that says "Click me!" and when clicked, it should display "Clicked :)".
+      
+        Answer:
+        import React, { useState } from 'react';
+            
+        const App = () => {
+        const [text, setText] = useState('Click me!');
+      
+        return (
+          <div className="w-full h-[100vh] flex justify-center">
+            <button
+            className="self-center bg-indigo-600 border border-transparent rounded-md py-2 px-8 w-64 flex justify-center text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-indigo-500"
+            onClick={() => {
+              setText('Clicked :)');
+            }}>
+            <div>{text}</div>
+            </button>
+          </div>
+          
+        );
+      };
+      export default App;
+      
+        `;
+  }
 }
 type storedResponse = {
   curr: CodeMessageResponse | null
@@ -87,7 +126,6 @@ export async function generate(input: PostMessages) {
   const projectId = input.project.id
   const messages = input.project.messages
   const aiOptions = { mode: input.project.mode, isPrivate: input.project.isPrivate }
-  let systemPromptMessage: string
   const session = await getServerSession(authOptions)
   const userId = session?.user?.id
   if (!userId || !projectId) {
@@ -96,23 +134,14 @@ export async function generate(input: PostMessages) {
     }
   }
 
-  try {
-    systemPromptMessage = await getSystemPrompt({
-      messages
-    })
-  }
-  catch (error: any) {
-    console.error(error)
-    return {
-      error: 'Unauthorized'
-    }
-  }
+  const systemPromptMessage = getSystemPrompt(aiOptions.mode)
+
   let retry = true;
   let model = aiOptions.mode === "quality" ? "gpt-4o" : "gpt-4o-mini"
-  // try using gpt 4 first, if it fails (can be context window or rate limit), fallback to gpt 3.5
-  // the open ai and the stream response should be seperate try catch blocks and not while loop
-  // now the storage can happen twice but im tiered and i dont want to think about it
-  console.log('model', model)
+  // try using the model from the mode first
+  // fallback to mini if context to large, rate limited or other error
+  // Implementation could create problems with storing the completion multiple times
+  // and should also seperate exeptions. But for now this will do.
   while (retry) {
     try {
       const stream = createStreamableValue();

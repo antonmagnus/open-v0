@@ -11,7 +11,7 @@ const exampleMessages = [
   },
   {
     heading: 'Interactive form',
-    message: 'Create a form with fields for name, email, and message, and a submit button. Validate all fields.'
+    message: 'Create a form with fields for name, email, and message, and a submit button.'
   },
 ]
 
