@@ -227,15 +227,25 @@ export async function storeMessage(projectId: string, completion: CodeMessageRes
     })
   } else {
     // If the project exists, update messages field
+    let existingMessages = [];
+
+    if (project.messages) {
+      try {
+        existingMessages = JSON.parse(project.messages.toString());
+      } catch (error) {
+        console.error("Failed to parse existing messages", error);
+      }
+    }
+
+    const updatedMessages = existingMessages.concat(newMessages);
+
     await prisma.project.update({
       where: { id: projectId },
       data: {
-        messages: {
-          push: JSON.stringify(newMessages)
-        },
+        messages: JSON.stringify(updatedMessages),
         updatedAt: date,
-      }
-    })
+      },
+    });
   }
 
 
