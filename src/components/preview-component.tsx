@@ -148,12 +148,15 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
         },
         body: JSON.stringify({ code: editorValue })
       });
+      if (!res.ok) {
+        throw new Error('Error compiling code');
+      }
       const { code } = await res.json();
       setPreviewCode(code);
 
     }
     catch (err: any) {
-      console.error('Error fetching preview code:', err);
+      return toast.error('Error compiling code')
     }
     finally {
       setIsStreaming(false);
