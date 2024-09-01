@@ -94,13 +94,13 @@ export function PromptForm({ className, id, showPrivate, input }: PromptProps) {
           <div className="flex space-x-4" aria-label="Quality or Speed">
             <div className="flex rounded-md border ">
               <Button className=""
-                variant={quality ? "default" : "outline"}
+                variant={quality ? "highlight" : "outline"}
                 onClick={toggleQuality}
               >
                 Quality
               </Button>
               <Button className=""
-                variant={speed ? "default" : "outline"}
+                variant={speed ? "highlight" : "outline"}
                 onClick={toggleSpeed}
               >
                 Speed
