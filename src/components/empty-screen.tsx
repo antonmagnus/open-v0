@@ -20,7 +20,7 @@ export function EmptyScreen({ setInput }: Pick<UseChatHelpers, 'setInput'>) {
     <div className="mx-auto max-w-2xl p-4">
       <div className="rounded-lg border bg-background p-8">
         <h1 className="mb-2 text-lg font-semibold">
-          Welcome to Magnolia, the React component builder.
+          Welcome to the React component builder.
         </h1>
         <p className="mb-2 leading-normal text-muted-foreground">
           This is AI chatbot app is built for creating React components {' '}
@@ -41,7 +41,7 @@ export function EmptyScreen({ setInput }: Pick<UseChatHelpers, 'setInput'>) {
             Github
           </ExternalLink>.
           And you can read more about the project on my {' '}
-          <ExternalLink href="https://antonmagnusson.se">
+          <ExternalLink href="https://antonmagnusson.se/projects/openv0">
             blog
           </ExternalLink>.
 
