@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+## Getting started
 
-First, run the development server:
+After trying out vercels v0.dev I was inspired to build my own version of it and learn how it works. The app is built using Next.js, Tailwind CSS and Vercel. The app is open-source and available on GitHub.
+
+### Requirements
+- Node.js >= 20.5.0
+- Docker
+- Postgres
+- pnpm
+
+### Local setup (Docker)
+Step-by-step local setup.
+
+1. git clone https://github.com/antonmagnus/open-v0
+2. cd open-v0
+3. nvm use 20.5.0
+4. pnpm i (install packages)
+5. Set environment variables 
+
+For local instance you can run postgress in docker
+Edit the compose.yml file to set a password, username and volume location for the database.
+Run the following commands to start the database:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+docker-compose up -d
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Set up a github oath app here https://github.com/settings/applications/new.
+For local deployment set the callback url to http://localhost:3000/api/auth
+This will give you a client id and secret that you can use for DEV_GITHUB_ID and DEV_GITHUB_SECRET.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+For next auth set the NEXTAUTH_URL to the host of the app.
+The NEXTAUTH_SECRET can be generated using the following command:
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+```bash
+npx auth secret
+```
+If you don't have an openAI api key you can follow [this guide](https://platform.openai.com/docs/quickstart) to get one.
 
-## Learn More
+Your .env file should now look something like this:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+NEXTAUTH_SECRET=..
+NEXTAUTH_URL=http://localhost:3000
+DEV_GITHUB_ID=..
+DEV_GITHUB_SECRET=..
+OPENAI_API_KEY=sk-..
+POSTGRES_USER=username
+POSTGRES_PASSWORD=password
+POSTGRES_DATABASE=mydb
+POSTGRES_URL=postgres://username:password@localhost:6500/mydb?connect_timeout=15
+POSTGRES_PRISMA_URL=postgres://username:password@localhost:6500/mydb?connect_timeout=15
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+7. Run the app using
+```bash
+pnpm run dev
+```
