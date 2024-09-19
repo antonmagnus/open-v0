@@ -15,17 +15,24 @@ interface CUSTOMNODEJSGLOBAL extends NODEJS.Global {
 }
 
 declare const global: CUSTOMNODEJSGLOBAL;
-// neonConfig.webSocketConstructor = ws
-// const connectionString = `${process.env.POSTGRES_URL}`
-
-// const pool = new Pool({ connectionString })
-// const adapter = new PrismaNeon(pool)
-
-const prisma = global.prisma || new PrismaClient({
-  adapter: new PrismaNeon(
-    new Pool({ connectionString: process.env.POSTGRES_URL })
-  )
-})
+//use local docker container for development
+let prisma: PrismaClient;
+if (process.env.NODE_ENV === "production") {
+  prisma = global.prisma || new PrismaClient({
+    adapter: new PrismaNeon(
+      new Pool({ connectionString: process.env.POSTGRES_URL })
+    )
+  })
+}
+else {
+  prisma = global.prisma || new PrismaClient({
+    datasources: {
+      db: {
+        url: process.env.POSTGRES_URL
+      }
+    }
+  })
+}
 if (process.env.NODE_ENV === "development") global.prisma = prisma;
 
 export default prisma;
