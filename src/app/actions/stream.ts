@@ -23,6 +23,7 @@ function getSystemPrompt(mode: 'quality' | 'speed'): string {
   All components should be interactive and use animations when appropriate.
   All components should be responsive and should work on common screen sizes.
   All components should be accessible and should work with screen readers.
+  Only use cdn links for external libraries.
   You must follow the exact format of this example. You may never respond with anything other than code. Don't format your response using markdown. The code should be executable.
 
   --- 
@@ -74,6 +75,8 @@ export default App;
         All components should be interactive.
         All components should be responsive and should work on common screen sizes.
         All components should be accessible and should work with screen readers.
+        Only use cdn links for external libraries.
+
         You must follow the exact format of this example. You may never respond with anything other than code. Don't format your response using markdown. The code should be executable.
       
         --- 
