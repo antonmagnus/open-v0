@@ -68,7 +68,7 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
     }
     const copyHeader = `
     /* 
-      Component created using https://www.magnolia.dev.
+      Component created using https://v0.antonmagnusson.se
       ${linkField}     
     */
     ${editorValue}
