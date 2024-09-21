@@ -138,7 +138,6 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
       return;
 
     try {
-      if (isStreaming) return;
       setIsStreaming(true);
       const url = process.env.NODE_ENV === 'development' ? 'http://localhost:3000/api/rollup' : 'https://rollups-b3tslor6ta-uc.a.run.app';
       const res = await fetch(url, {
@@ -162,7 +161,7 @@ const PreviewComponent: React.FC<PreviewProps> = ({ className, defaultCode, id }
       setIsStreaming(false);
     }
 
-  }, [editorValue], 1000);
+  }, [editorValue], 2000);
 
 
   if (allowSplit) {
