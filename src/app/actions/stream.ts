@@ -1,16 +1,16 @@
 
 'use server'
-import { streamObject, CoreMessage, CoreSystemMessage, OpenAIStream, nanoid } from 'ai';
+import { streamObject, CoreMessage } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 import { createStreamableValue } from 'ai/rsc';
 
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions.mjs";
-import { CodeMessageResponse, PostMessages } from "@/lib/model";
-import { kv } from '@vercel/kv';
+import { CodeMessageResponse, PostMessages, codeChangeSchema } from "@/lib/model";
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth';
 import { storeMessage } from './projects';
+import { applyCodeChanges } from '@/lib/utils';
 
 function getSystemPrompt(mode: 'quality' | 'speed'): string {
 
@@ -128,8 +128,15 @@ async function storeMessageCompletion(projectId: string, completion: string, mes
 export async function generate(input: PostMessages) {
   const projectId = input.project.id
   const messages = input.project.messages
+
   const aiOptions = { mode: input.project.mode, isPrivate: input.project.isPrivate }
   const session = await getServerSession(authOptions)
+  let parsedLastMessageCode = ""
+  const lastAssistantMessage = messages.slice().reverse().find(message => message.role === 'assistant');
+  if (lastAssistantMessage && lastAssistantMessage.content) {
+    parsedLastMessageCode = JSON.parse(lastAssistantMessage.content as string).code
+  }
+  //console.log(parsedLastMessageCode)
   const userId = session?.user?.id
   if (!userId || !projectId) {
     return {
@@ -145,6 +152,7 @@ export async function generate(input: PostMessages) {
   // fallback to mini if context to large, rate limited or other error
   // Implementation could create problems with storing the completion multiple times
   // and should also seperate exeptions. But for now this will do.
+
   while (retry) {
     try {
       const stream = createStreamableValue();
@@ -159,18 +167,26 @@ export async function generate(input: PostMessages) {
             title: z.string(),
             description: z.string()
               .describe('A short description of the code to be executed and changes made'),
-            code: z
-              .string()
-              .describe('The full code to be executed.'),
+            codeChanges: codeChangeSchema,
           }),
           messages: messages as CoreMessage[],
           temperature: 0,
         });
 
         for await (const partialObject of partialObjectStream) {
-          stream.update(partialObject);
-        }
+          let fullCode = parsedLastMessageCode;
+          if (partialObject.codeChanges) {
+            const codeChangesWithDefaults = {
+              ...partialObject.codeChanges,
+              replaceAll: partialObject.codeChanges.replaceAll ?? false,
+              changes: partialObject.codeChanges.changes?.filter((change): change is { oldSnippet: string; newSnippet: string; } => change !== undefined) ?? [],
+            };
 
+            fullCode = applyCodeChanges(codeChangesWithDefaults, parsedLastMessageCode);
+          }
+          stream.update({ ...partialObject, code: fullCode });
+
+        }
         const completion = JSON.stringify(stream.value);
         await storeMessageCompletion(projectId, completion, messages, userId, aiOptions)
         stream.done();

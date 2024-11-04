@@ -16,11 +16,12 @@ interface ChatProps extends HTMLAttributes<HTMLDivElement> {
 }
 const tryGetContent = (jsonString: string): CodeMessageResponse => {
   let retMessage: CodeMessageResponse = {
-    code: "",
+    codeChanges: { changes: [], replaceAll: false, replacement: "" },
     description: "",
     title: "",
     plan: "",
     version: "",
+    code: ''
   }
   if (!jsonString || jsonString === "") {
     return retMessage

@@ -92,7 +92,10 @@ function useAI() {
             role: "assistant",
           };
           appendAIMessage(message);
-          appendLastAIResponse({ code: "", description: "", title: "", version: LatestCodeMessageResponseVersion, plan: "" });
+          appendLastAIResponse({
+            code: "", description: "", title: "", version: LatestCodeMessageResponseVersion, plan: "",
+            codeChanges: { changes: [], replaceAll: false, replacement: "" }
+          });
 
           // @ts-ignore
           for await (const partialObject of readStreamableValue(object)) {
@@ -129,7 +132,10 @@ function useAI() {
 
     const newResponse = { code: content, description: desc, title, version: LatestCodeMessageResponseVersion, plan };
     updateLastAIMessage(JSON.stringify(newResponse));
-    updateLastAIResponse({ code: content, description: desc, title, version: LatestCodeMessageResponseVersion, plan });
+    updateLastAIResponse({
+      code: content, description: desc, title, version: LatestCodeMessageResponseVersion, plan,
+      codeChanges: undefined
+    });
   }
 
   const initProject = (project: Project, isPreview: boolean) => {

@@ -1,13 +1,27 @@
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions.mjs";
 import { MessageParam } from "./hooks/use-ai";
 import { Prisma } from '@prisma/client';
+import { z } from "zod";
 
 
 export type PostMessages = {
   project: Project,
 }
 export const LatestCodeMessageResponseVersion = "1.0.0"
+export const codeChangeSchema = z.object({
+  changes: z
+    .array(
+      z.object({
+        oldSnippet: z.string(),
+        newSnippet: z.string(),
+      })
+    )
+    .optional(),
+  replaceAll: z.boolean(),
+  replacement: z.string().optional(),
+});
 export type CodeMessageResponse = {
+  codeChanges?: z.infer<typeof codeChangeSchema>,
   code: string,
   plan?: string,
   description: string,
