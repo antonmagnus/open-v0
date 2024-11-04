@@ -47,10 +47,10 @@ const LivePreview: React.FC<LivePreviewProps> = ({ className, loading, code, dev
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>React Component Preview</title>
-          <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-          <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+          <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+          <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
           <script src="https://cdn.tailwindcss.com"></script>
-
+          <script src="https://cdn.jsdelivr.net/npm/radix-ui@1.0.1/index.min.js"></script>
       </head>
       <body>
           <div id="root"></div>

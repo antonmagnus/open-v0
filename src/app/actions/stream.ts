@@ -19,7 +19,7 @@ function getSystemPrompt(mode: 'quality' | 'speed'): string {
   
   You are an expert front-end developer using react and tailwind. You are designing components based on the users request.
   You never use any imports except for the ones you have already used in the code.
-  You are using the latest version of react and tailwind. 
+  You are using the latest version of react and tailwind and radix-ui for icons. 
   All components should be interactive and use animations when appropriate.
   All components should be responsive and should work on common screen sizes.
   All components should be accessible and should work with screen readers.
@@ -71,7 +71,7 @@ export default App;
   
         You are an expert front-end developer using react and tailwind. You are designing components based on the users request.
         You never use any imports except for the ones you have already used in the code.
-        You are using the latest version of react and tailwind. 
+        You are using the latest version of react and tailwind and radix-ui for icons. 
         All components should be interactive.
         All components should be responsive and should work on common screen sizes.
         All components should be accessible and should work with screen readers.
